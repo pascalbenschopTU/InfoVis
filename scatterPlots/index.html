@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+    </head>
+
+    <script>
+        function loadJSONData(filename){
+            d3.json(filename).then((json) =>{
+                console.log("Loaded data from %s!", filename);
+            }).catch((error) =>{
+                console.log("Failed to load data from %s!", filename);
+            });
+        }
+        function loadCSVData(filename, callback){
+            d3.csv(filename).then((json) =>{
+                console.log("Loaded data from %s!", filename);
+                callback(json)
+            }).catch((error) =>{
+                console.log("Failed to load data from %s!", filename);
+            });        
+        }
+        function showWeatherData(data){
+
+            // scale data to axis
+            const xscale = d3.scaleLinear().domain([d3.min(data, (d) => d.Year), d3.max(data, (d) => d.Year)]).range([0, width]);
+            const yscale = d3.scaleLinear().domain([0, d3.max(data, (d) => parseInt(d.AvgRain))]).range([height, 0]);
+            const xaxis = d3.axisBottom().scale(xscale);
+            const yaxis = d3.axisLeft().scale(yscale);
+            // add axis to svg group
+            g.append("g").classed("x.axis", true).attr("transform", `translate(0,${height})`).call(xaxis);
+            g.append("g").classed("y.axis", true).call(yaxis);
+            const group = g.append("g");
+
+            // trendline with simple statistics
+            console.log(data.map(d => [d.Year, d.AvgRain]))
+            const lR = ss.linearRegression(data.map(d => [parseInt(d.Year), parseInt(d.AvgRain)]));
+            const lRL = ss.linearRegressionLine(lR);
+            const xCoordinates = [parseInt(data[0].Year), parseInt(data.slice(-1)[0].Year)];
+            const regressionPoints = xCoordinates.map(d => ({Year: d, AvgRain: lRL(d)}));
+            const line = d3.line().x(d => xscale(parseInt(d.Year))).y(d => yscale(parseInt(d.AvgRain)));
+
+            const marks = group
+                .selectAll("circle")
+                .data(data)
+                .join(
+                    (enter) => {
+                        const marks_enter = enter.append("circle");
+                        marks_enter.attr("r", 5).append("title");
+                        return marks_enter;
+                    },
+                    (update) => update,
+                    (exit) => exit.remove()
+                );
+
+            g.append("path").datum(regressionPoints).attr("d", line).attr("stroke", "green").attr("stroke-width", 3);
+
+            marks.style("fill", color)
+                 .attr("cx", (d) => xscale(d.Year))
+                 .attr("cy", (d) => yscale(d.AvgRain));
+
+
+        }
+    </script>
+    <body>
+        <h1 id="title">Test Plot</h1>
+        <script>
+            const margin = { top: 50, bottom: 40, left: 50, right: 50 };
+            const width = 800 - margin.left - margin.right;
+            const height = 600 - margin.top - margin.bottom;
+
+            // Creates sources <svg> element
+            const svg = d3
+                .select("body")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom);
+
+            // Group used to enforce margin
+            const g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            loadCSVData("/data/weatherDataset.csv", showWeatherData)
+        </script>
+    </body>
+</html>
