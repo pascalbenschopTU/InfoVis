@@ -1,0 +1,66 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 70px;
+    color: #000B76;
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 180px;
+}
+p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 50px;
+}
+
+p.white {
+    color: white;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.graph-container {
+    width: 50%;
+    padding: 20px;
+}
+
+strong {
+    color: #000B76;
+}
+
+.text-container {
+    width: 50%;
+    padding: 20px;
+}
+
+
+
+.container-double {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px;
+}
+
+.container.center {
+    align-items: center;
+}
+
+.svg-bottom {
+    margin-top: auto;
+}
+
+.svg-top {
+    margin-bottom: auto;
+}
+.container:nth-child(odd) {
+    background-color: white;
+}
+
+.container:nth-child(even) {
+    background-color: #a2d9ff;
+}
