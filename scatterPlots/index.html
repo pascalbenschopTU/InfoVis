@@ -1,11 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
         <script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+        <title>Scatter Plot</title>
     </head>
 
+    <style>
+
+        /* The slider itself */
+        .slider {
+            -webkit-appearance: none;  /* Override default CSS styles */
+            appearance: none;
+            height: 10px; /* Specified height */
+            background: #d3d3d3; /* Grey background */
+            outline: none; /* Remove outline */
+            opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+            -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+            transition: opacity .2s;
+        }
+
+        /* Mouse-over effects */
+        .slider:hover {
+            opacity: 1; /* Fully shown on mouse-over */
+        }
+
+        /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Override default look */
+            appearance: none;
+            width: 25px; /* Set a specific slider handle width */
+            height: 25px; /* Slider handle height */
+            background: #04AA6D; /* Green background */
+            cursor: pointer; /* Cursor on hover */
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px; /* Set a specific slider handle width */
+            height: 25px; /* Slider handle height */
+            background: #04AA6D; /* Green background */
+            cursor: pointer; /* Cursor on hover */
+        }
+    </style>
+
     <script>
+        class WeatherGraph{
+            constructor(data, graph_name, color_points, color_trendline) {
+                this.data = data;
+                this.color_points = color_points;
+                this.color_trendline = color_trendline;
+                this.xScale = null;
+                this.yScale = null;
+                this.xAxis = null;
+                this.lRL = null;
+                this.xOffset = 0;
+                this.yMax = 0;
+                this.predictionType = 1; // 0 == bad, 1 == normal, 2 == good
+                this.root_group = null;
+                this.svg = d3.select("body").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("id", this.graph_name);
+                this.graph_name = graph_name;
+                this.graph_name_xAxis = graph_name + "_x";
+                this.graph_name_predictionG = graph_name + "_predG";
+            }
+
+            plotDataGraph(range){
+                if (this.root_group != null){
+                    this.root_group.remove();
+                }else{
+                    this.lRL = calculateRegression(this.data)
+                }
+                this.root_group = this.svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+                this.xOffset = range;
+
+                // plot normal trendline
+                const xCoordinates = [parseFloat(this.data[0][0]), parseFloat(this.data.slice(-1)[0][0])];
+                const reg_points = xCoordinates.map(d => [d, this.lRL(d)])
+                this.plotDataPoints()
+                this.plotDataTrendline(reg_points, this.color_trendline);
+
+                // plot prediction trendline
+                if (range > 0){
+                    const x = [parseFloat(this.data.slice(-1)[0][0]), parseFloat(this.data.slice(-1)[0][0]) + this.xOffset];
+                    const regP = x.map(d => [d, this.lRL(d)])
+                    // console.log(regP)
+                    this.plotDataTrendline(regP, this.color_trendline)
+                }
+
+            }
+
+            updateGraphByType(type){
+                this.predictionType = type;
+            }
+
+            resetGraph(){
+                if (this.svg != null){
+                    this.svg.remove();
+                }
+                this.xOffset = 0
+                this.svg = d3
+                    .select("body")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .attr("id", this.graph_name);
+                this.plotDataGraph(0);
+            }
+
+            plotDataPoints(){
+                // scale data to axis
+                this.xScale = d3.scaleLinear().domain([d3.min(this.data, (d) => d[0]), d3.max(this.data, (d) => d[0]) + this.xOffset]).range([0, width]);
+                this.yScale = d3.scaleLinear().domain([0, d3.max(this.data, (d) => parseFloat(d[1]))]).range([height, 0]);
+                this.xAxis = d3.axisBottom().scale(this.xScale);
+                const yaxis = d3.axisLeft().scale(this.yScale);
+                // add axis to svg group
+                this.root_group.append("g").classed("xaxis", true).attr("transform", `translate(0,${height})`).attr("id", this.graph_name_xAxis).call(this.xAxis);
+                this.root_group.append("g").classed("yaxis", true).call(yaxis);
+                const group = this.root_group.append("g");
+
+                const marks = group
+                    .selectAll("circle")
+                    .data(this.data)
+                    .join(
+                        (enter) => {
+                            const marks_enter = enter.append("circle");
+                            marks_enter.attr("r", 3).append("title");
+                            return marks_enter;
+                        },
+                        (update) => update,
+                        (exit) => exit.remove()
+                    );
+
+                marks.style("fill", this.color_points)
+                    .attr("cx", (d) => this.xScale(d[0]))
+                    .attr("cy", (d) => this.yScale(d[1]));
+            }
+
+            plotDataTrendline(datapoints, color="green"){
+                // trendline with simple statistics
+                if (this.root_group != null){
+                    // const line = d3.line().x(d => this.xScale(parseFloat(d[0]))).y(d => this.yScale(parseFloat(d[1])));
+                    var line = d3.line()
+                        .curve(d3.curveLinear)
+                        .x(d => this.xScale(parseFloat(d[0])))
+                        .y(d => this.yScale(parseFloat(d[1])));
+                    this.root_group.append("path").datum(datapoints).attr("d", line).attr("stroke", color).attr("stroke-width", 3).attr("id", this.graph_name_predictionG);
+                }
+            }
+        }
+
         function loadJSONData(filename){
             d3.json(filename).then((json) =>{
                 console.log("Loaded data from %s!", filename);
@@ -13,74 +155,130 @@
                 console.log("Failed to load data from %s!", filename);
             });
         }
-        function loadCSVData(filename, callback){
-            d3.csv(filename).then((json) =>{
-                console.log("Loaded data from %s!", filename);
-                callback(json)
-            }).catch((error) =>{
-                console.log("Failed to load data from %s!", filename);
-            });        
+        function row(d) {
+            return {
+                Year: d.Year, // convert "Year" column to Date
+                AvgRain: d.AvgRain,
+                AvgTemp: d.AvgTemp,
+            };
         }
+
+        function loadCSVData(filename, callback){
+            // d3.csv(filename).then((csv) =>{
+            //     console.log("Loaded data from %s!", filename);
+            //     callback(csv)
+            // }).catch((error) =>{
+            //     console.log(error);
+            //     console.log("Failed to load data from %s!", filename);
+            // });
+                d3.csv(filename, callback);
+        }
+
+        function calculateRegression(data, offset=0){
+            const lR = ss.linearRegression(data.map(d => [parseFloat(d[0]), parseFloat(d[1])]));
+            return ss.linearRegressionLine(lR);
+        }
+
+
+        // global data
+        let predictionRange = 0.0;
+        let predictionType = 2;
+        let graphRain = null;
+        let graphTemp = null;
+        // page initialization functions
         function showWeatherData(data){
+            console.log(data)
 
-            // scale data to axis
-            const xscale = d3.scaleLinear().domain([d3.min(data, (d) => d.Year), d3.max(data, (d) => d.Year)]).range([0, width]);
-            const yscale = d3.scaleLinear().domain([0, d3.max(data, (d) => parseInt(d.AvgRain))]).range([height, 0]);
-            const xaxis = d3.axisBottom().scale(xscale);
-            const yaxis = d3.axisLeft().scale(yscale);
-            // add axis to svg group
-            g.append("g").classed("x.axis", true).attr("transform", `translate(0,${height})`).call(xaxis);
-            g.append("g").classed("y.axis", true).call(yaxis);
-            const group = g.append("g");
+            // plot temp data, x years, y avg temp
+            const dataTemp = data.map(d => [parseFloat(d.Year), parseFloat(d.AvgTemp)]);
+            graphTemp = new WeatherGraph(dataTemp, "temp_graph", "red", "orange");
+            // graphTemp.yMax = Math.max(data.map(d => parseFloat(d.AvgTemp)));
+            graphTemp.plotDataGraph(0)
+            // plot rain data, x years, y avg rain
 
-            // trendline with simple statistics
-            console.log(data.map(d => [d.Year, d.AvgRain]))
-            const lR = ss.linearRegression(data.map(d => [parseInt(d.Year), parseInt(d.AvgRain)]));
-            const lRL = ss.linearRegressionLine(lR);
-            const xCoordinates = [parseInt(data[0].Year), parseInt(data.slice(-1)[0].Year)];
-            const regressionPoints = xCoordinates.map(d => ({Year: d, AvgRain: lRL(d)}));
-            const line = d3.line().x(d => xscale(parseInt(d.Year))).y(d => yscale(parseInt(d.AvgRain)));
+            const dataRain = data.map(d => [parseFloat(d.Year), parseFloat(d.AvgRain)])
 
-            const marks = group
-                .selectAll("circle")
-                .data(data)
-                .join(
-                    (enter) => {
-                        const marks_enter = enter.append("circle");
-                        marks_enter.attr("r", 5).append("title");
-                        return marks_enter;
-                    },
-                    (update) => update,
-                    (exit) => exit.remove()
-                );
+            graphRain = new WeatherGraph(dataRain, "rain_graph", "blue", "green")
+            // graphRain.yMax = Math.max(data.map(d => parseFloat(d.AvgRain)));
+            graphRain.plotDataGraph(0)
+            console.log(graphTemp.yMax)
+            console.log(graphRain.yMax)
+        }
+        // Button callbacks
+        function showRange(data){
+            predictionRange = parseInt(data)
+            document.getElementById("predictionRangeLabel").innerText = predictionRange + " Years"
+        }
+        function showType(data){
+            predictionType = parseInt(data)
+            let output = "";
+            switch (predictionType) {
+                case 0:
+                    output = "Bad"
+                    break
+                case 1:
+                    output = "Normal"
+                    break
+                case 2:
+                    output = "Good"
+                    break
+            }
 
-            g.append("path").datum(regressionPoints).attr("d", line).attr("stroke", "green").attr("stroke-width", 3);
-
-            marks.style("fill", color)
-                 .attr("cx", (d) => xscale(d.Year))
-                 .attr("cy", (d) => yscale(d.AvgRain));
-
-
+            document.getElementById("predictionTypeLabel").innerText = output
+        }
+        function updateGraphByType(data){
+            console.log("set graph to ", data)
+        }
+        function updateGraphByRange(data){
+            // extend both trendlines by "data" years
+            if (graphTemp != null){
+                graphTemp.plotDataGraph(parseFloat(data));
+            }
+            if (graphRain != null){
+                graphRain.plotDataGraph(parseFloat(data));
+            }
+            // const xscale = d3.scaleLinear().domain([d3.min(data, (d) => d[0]), d3.max(data, (d) => d[0])]).range([0, width]);
+            // const yscale = d3.scaleLinear().domain([0, d3.max(data, (d) => parseFloat(d[1]))]).range([height, 0]);
+        }
+        function resetGraphs(){
+            if (graphTemp != null){
+                graphTemp.resetGraph();
+            }
+            if (graphRain != null){
+                graphRain.resetGraph();
+            }
+            document.getElementById("predictionTypeSlider").value = 1;
+            document.getElementById("predictionRangeSlider").value = 0;
+            document.getElementById("predictionTypeLabel").innerHTML = "Normal";
+            document.getElementById("predictionRangeLabel").innerHTML = "0 Years";
+            predictionRange = 0.0;
+            predictionType = 1;
         }
     </script>
     <body>
         <h1 id="title">Test Plot</h1>
+        <div>
+            <div>
+                <label for="predictionTypeSlider">Prediction Type</label>
+                <input type="range" min="0" max="2" value="1" class="slider" id="predictionTypeSlider" style="background: #d3d3d3" onchange="updateGraphByType(this.value)" oninput="showType(this.value)">
+                <label id="predictionTypeLabel">Normal</label>
+            </div>
+            <div>
+                <label for="predictionRangeSlider">Prediction Range</label>
+                <input type="range" min="0" max="50" value="0" class="slider" id="predictionRangeSlider" style="background: #d3d3d3" onchange="updateGraphByRange(this.value)" oninput="showRange(this.value)">
+                <label id="predictionRangeLabel">0 Years</label>
+            </div>
+            <div>
+                <button id="btnReset" onclick="resetGraphs()">Reset</button>
+            </div>
+        </div>
         <script>
             const margin = { top: 50, bottom: 40, left: 50, right: 50 };
             const width = 800 - margin.left - margin.right;
             const height = 600 - margin.top - margin.bottom;
 
-            // Creates sources <svg> element
-            const svg = d3
-                .select("body")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom);
-
-            // Group used to enforce margin
-            const g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-            loadCSVData("/data/weatherDataset.csv", showWeatherData)
+            loadCSVData("/scatterPlots/data/weatherDataset.csv", showWeatherData)
         </script>
+
     </body>
 </html>
