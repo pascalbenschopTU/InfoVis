@@ -8,3 +8,7 @@ https://gist.github.com/TWIAV/94be9cb4ddf3a2e65602
 
 https://github.com/djvanderlaan/rijksdriehoek
 
+
+## Converting UTM to WGS84 coordinates
+
+https://github.com/Kevo89/UTM2LatLong/blob/master/utm2wgs.py 

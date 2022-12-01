@@ -17,20 +17,16 @@ var NL = d3.timeFormatDefaultLocale(nl_NL);
 
 var thsd = d3.format("d"); 
 
-var color = d3.scaleSequential(d3.interpolateBlues);
+// Scaling is from -40cm NAP to 200cm NAP
+var color = d3.scaleLinear().domain([-40,200]).range(["white", "blue"])
 
 var width = 1100,
     height = 900;
 
 var projection = d3.geoMercator()
-    .scale(10700) // 10700
+    .scale(10700)
     .translate([width / 2, height / 2])
     .center([5.4, 52.2]);
-
-var projection2 = d3.geoMercator()
-    .scale(12000) // 10700
-    .translate([width / 2, height / 2])
-    .center([52.15517440, 5.38720621]);
 
 var path = d3.geoPath()
     .projection(projection);
@@ -41,19 +37,17 @@ var svg = d3.select("body").append("svg")
 
 d3.queue()
     .defer(d3.json, "data/nlgemeenten2009.json")
-    .defer(d3.csv, "data/nappeilmerken.csv")
+    .defer(d3.csv, "data/waterlevel20221124_041.csv")
     .await(ready);
 
-function ready(error, nlgemeenten2009, nappeilmerken) {
+function ready(error, nlgemeenten2009, waterlevel2022) {
     if (error) 
         return console.log(error);
 
     console.log(nlgemeenten2009);
-    console.log(nappeilmerken);
+    console.log(waterlevel2022);
     
     var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeenten);
-
-
 
     svg.append("g")
         .attr("class", "land")
@@ -62,6 +56,49 @@ function ready(error, nlgemeenten2009, nappeilmerken) {
         .enter().append("path")
         .attr("d", path)
         .attr("title", function(d) { return d.properties.gemeente; })
+
+        // These functions define whether the map is interactible, turned off for now
+
+        // .on("mouseover", function(d) {
+        //     var xPosition = d3.mouse(this)[0];
+        //     var yPosition = d3.mouse(this)[1] - 30;
+        //     svg.append("text")
+        //         .attr("class", "info")
+        //         .attr("id", "tooltip")
+        //         .attr("x", xPosition)
+        //         .attr("y", yPosition)
+        //         .text(d.properties.gemeente + " (" + thsd(d.properties.inwoners) + " inwoners)");
+        //     d3.select(this)
+        //         .attr("class", "selected");
+        // })
+        // .on("mouseout", function(d) {
+        //     d3.select("#tooltip").remove();
+        //     d3.select(this)
+        //     .transition()
+        //     .attr("class", "land")
+        //     .duration(250)
+        // });
+
+    // Add water level points
+    svg.selectAll("circle")
+        .data(waterlevel2022).enter()
+        .append("circle")
+        .attr("cx", function(d) {
+            var c = Utm2Wgs(d.X, d.Y, 31)
+            var p = projection(c)
+            return p[0]
+        })
+        .attr("cy", function(d) {
+            var c = Utm2Wgs(d.X, d.Y, 31)
+            var p = projection(c)
+            return p[1]
+        })
+        // Define width of each point
+        .attr("r", "10px")
+        .attr("class", "waterlevel")
+        // Define color based on water level -> NUMERIEKEWAARDE
+        .style("fill", d => color(d.NUMERIEKEWAARDE))
+        // Show the water level when hovering over a point
         .on("mouseover", function(d) {
             var xPosition = d3.mouse(this)[0];
             var yPosition = d3.mouse(this)[1] - 30;
@@ -70,7 +107,7 @@ function ready(error, nlgemeenten2009, nappeilmerken) {
                 .attr("id", "tooltip")
                 .attr("x", xPosition)
                 .attr("y", yPosition)
-                .text(d.properties.gemeente + " (" + thsd(d.properties.inwoners) + " inwoners)");
+                .text("Water level above NAP: " + d.NUMERIEKEWAARDE)
             d3.select(this)
                 .attr("class", "selected");
         })
@@ -78,64 +115,10 @@ function ready(error, nlgemeenten2009, nappeilmerken) {
             d3.select("#tooltip").remove();
             d3.select(this)
             .transition()
-            .attr("class", "land")
+            .attr("class", "waterlevel")
             .duration(250)
         });
-
-    svg.selectAll("circle")
-        .data(nappeilmerken).enter()
-        .append("circle")
-        .attr("cx", function(d) {
-            var c = rijksdriehoekToGeo(d.x_rd, d.y_rd)
-            p = projection2(c);
-            return p[0];
-        })
-        .attr("cy", function(d) {
-            var c = rijksdriehoekToGeo(d.x_rd, d.y_rd)
-            p = projection2(c);
-            return p[1]
-        })
-        .attr("r", "3px")
-        .style("fill", d => color(d.nap_hoogte))
 }
 
-d3.select(self.frameElement).style("height", height + "px");
-
-
-  
-//   d3.json("data/nlgemeenten2009.json", function(error, nlgemeenten2009) {
-//       if (error) return console.error(error);
-//       // console.log(nlgemeenten2009);
-//       var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeenten);
-  
-//       console.log(gemeenten.features)
-  
-//       svg.append("g")
-//           .attr("class", "land")
-//           .selectAll("path")
-//           .data(gemeenten.features)
-//           .enter().append("path")
-//           .attr("d", path)
-//           .attr("title", function(d) { return d.properties.gemeente; })
-//           .on("mouseover", function(d) {
-//               var xPosition = d3.mouse(this)[0];
-//               var yPosition = d3.mouse(this)[1] - 30;
-//               svg.append("text")
-//                   .attr("class", "info")
-//                   .attr("id", "tooltip")
-//                   .attr("x", xPosition)
-//                   .attr("y", yPosition)
-//                   .text(d.properties.gemeente + " (" + thsd(d.properties.inwoners) + " inwoners)");
-//               d3.select(this)
-//                   .attr("class", "selected");
-//           })
-//           .on("mouseout", function(d) {
-//               d3.select("#tooltip").remove();
-//               d3.select(this)
-//               .transition()
-//               .attr("class", "land")
-//               .duration(250)
-//           });
-//   });
   
   
