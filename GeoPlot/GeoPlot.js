@@ -35,8 +35,9 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-d3.json('data/nlgemeenten2009.json').then(function(nlgemeenten2009) {
-    var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeenten);
+// Get the topojson from cartomap.github.io for the map of the Netherlands
+d3.json('https://cartomap.github.io/nl/wgs84/gemeente_2022.topojson').then(function(nlgemeenten2009) {
+    var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeente_2022);
 
     svg.append("g")
         .attr("class", "land")
@@ -44,8 +45,7 @@ d3.json('data/nlgemeenten2009.json').then(function(nlgemeenten2009) {
         .data(gemeenten.features)
         .enter().append("path")
         .attr("d", path)
-        .attr("title", function(d) { return d.properties.gemeente; })
-})
+});
 
 d3.csv('data/waterlevel2022.csv').then(function(waterlevel2022) {
     svg.selectAll("circle")
