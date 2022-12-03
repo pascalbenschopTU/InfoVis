@@ -35,18 +35,7 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-d3.queue()
-    .defer(d3.json, "data/nlgemeenten2009.json")
-    .defer(d3.csv, "data/waterlevel20221124_041.csv")
-    .await(ready);
-
-function ready(error, nlgemeenten2009, waterlevel2022) {
-    if (error) 
-        return console.log(error);
-
-    console.log(nlgemeenten2009);
-    console.log(waterlevel2022);
-    
+d3.json('data/nlgemeenten2009.json').then(function(nlgemeenten2009) {
     var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeenten);
 
     svg.append("g")
@@ -56,30 +45,9 @@ function ready(error, nlgemeenten2009, waterlevel2022) {
         .enter().append("path")
         .attr("d", path)
         .attr("title", function(d) { return d.properties.gemeente; })
+})
 
-        // These functions define whether the map is interactible, turned off for now
-
-        // .on("mouseover", function(d) {
-        //     var xPosition = d3.mouse(this)[0];
-        //     var yPosition = d3.mouse(this)[1] - 30;
-        //     svg.append("text")
-        //         .attr("class", "info")
-        //         .attr("id", "tooltip")
-        //         .attr("x", xPosition)
-        //         .attr("y", yPosition)
-        //         .text(d.properties.gemeente + " (" + thsd(d.properties.inwoners) + " inwoners)");
-        //     d3.select(this)
-        //         .attr("class", "selected");
-        // })
-        // .on("mouseout", function(d) {
-        //     d3.select("#tooltip").remove();
-        //     d3.select(this)
-        //     .transition()
-        //     .attr("class", "land")
-        //     .duration(250)
-        // });
-
-    // Add water level points
+d3.csv('data/waterlevel2022.csv').then(function(waterlevel2022) {
     svg.selectAll("circle")
         .data(waterlevel2022).enter()
         .append("circle")
@@ -100,14 +68,14 @@ function ready(error, nlgemeenten2009, waterlevel2022) {
         .style("fill", d => color(d.NUMERIEKEWAARDE))
         // Show the water level when hovering over a point
         .on("mouseover", function(d) {
-            var xPosition = d3.mouse(this)[0];
-            var yPosition = d3.mouse(this)[1] - 30;
+            var xPosition = d.x;
+            var yPosition = d.y - 100;
             svg.append("text")
                 .attr("class", "info")
                 .attr("id", "tooltip")
                 .attr("x", xPosition)
                 .attr("y", yPosition)
-                .text("Water level above NAP: " + d.NUMERIEKEWAARDE)
+                .text("Water level above NAP: " + d.target.__data__.NUMERIEKEWAARDE)
             d3.select(this)
                 .attr("class", "selected");
         })
@@ -118,7 +86,42 @@ function ready(error, nlgemeenten2009, waterlevel2022) {
             .attr("class", "waterlevel")
             .duration(250)
         });
-}
+});
+
+// Get data from slider
+const getData = value => d3.csv(`data/waterlevel${value}.csv`)
+const slider = document.getElementById('selectYear')
+
+slider.addEventListener('input', event => getData(event.target.value).then(
+	data => {
+        // Add new water level points
+        svg.selectAll("circle")
+            .data(data).enter()
+
+        // Transform water level points
+        svg.selectAll("circle").transition()
+        // .duration(750)
+        
+        .attr("cx", function(data) {
+            var c = Utm2Wgs(data.X, data.Y, 31)
+            var p = projection(c)
+            return p[0]
+        })
+        .attr("cy", function(data) {
+            var c = Utm2Wgs(data.X, data.Y, 31)
+            var p = projection(c)
+            return p[1]
+        })
+        .style("fill", function(data) {
+            return color(data.NUMERIEKEWAARDE)
+        })
+        
+
+        const display = document.getElementById('display')
+        display.innerText = event.target.value;
+  }
+))
+
 
   
   

@@ -9,7 +9,7 @@ def makeCSV(filename):
     def getYear(string):
         return int(string.split("-")[2])
 
-    df  = pd.read_csv(filename, delimiter=";")
+    df  = pd.read_csv(filename, delimiter=";", encoding='unicode_escape')
     df = df[df['HOEDANIGHEID_OMSCHRIJVING'] == 't.o.v. Normaal Amsterdams Peil']
 
     keep_col = ['X','Y','NUMERIEKEWAARDE', 'WAARNEMINGDATUM']
@@ -21,7 +21,9 @@ def makeCSV(filename):
     small_f['X'] = small_f['X'].apply(getNumber)
     small_f['Y'] = small_f['Y'].apply(getNumber)
 
-    small_f.to_csv("waterlevel" + filename)
+    new_filename = str(small_f['WAARNEMINGDATUM'][0]) + ".csv"
+
+    small_f.to_csv("waterlevel" + new_filename)
 
 
 if __name__ == "__main__":
