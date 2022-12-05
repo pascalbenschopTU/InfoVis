@@ -68,8 +68,9 @@ d3.csv('data/waterlevel2022.csv').then(function(waterlevel2022) {
         .style("fill", d => color(d.NUMERIEKEWAARDE))
         // Show the water level when hovering over a point
         .on("mouseover", function(d) {
-            var xPosition = d.x;
-            var yPosition = d.y - 100;
+            
+            var xPosition = d.x - 200;
+            var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
             svg.append("text")
                 .attr("class", "info")
                 .attr("id", "tooltip")
@@ -94,27 +95,26 @@ const slider = document.getElementById('selectYear')
 
 slider.addEventListener('input', event => getData(event.target.value).then(
 	data => {
-        // Add new water level points
+        // Add new data to current water level points
         svg.selectAll("circle")
             .data(data).enter()
-
         // Transform water level points
         svg.selectAll("circle").transition()
-        // .duration(750)
-        
-        .attr("cx", function(data) {
-            var c = Utm2Wgs(data.X, data.Y, 31)
-            var p = projection(c)
-            return p[0]
-        })
-        .attr("cy", function(data) {
-            var c = Utm2Wgs(data.X, data.Y, 31)
-            var p = projection(c)
-            return p[1]
-        })
-        .style("fill", function(data) {
-            return color(data.NUMERIEKEWAARDE)
-        })
+            .duration(750)
+            
+            .attr("cx", function(data) {
+                var c = Utm2Wgs(data.X, data.Y, 31)
+                var p = projection(c)
+                return p[0]
+            })
+            .attr("cy", function(data) {
+                var c = Utm2Wgs(data.X, data.Y, 31)
+                var p = projection(c)
+                return p[1]
+            })
+            .style("fill", function(data) {
+                return color(data.NUMERIEKEWAARDE)
+            })
         
 
         const display = document.getElementById('display')
