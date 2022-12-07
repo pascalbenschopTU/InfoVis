@@ -15,6 +15,8 @@ var nl_NL = {
 
 var NL = d3.timeFormatDefaultLocale(nl_NL);
 
+const slider = document.getElementById('selectYear')
+
 var thsd = d3.format("d"); 
 
 // Scaling is from -40cm NAP to 200cm NAP
@@ -36,8 +38,10 @@ var svg = d3.select("body").append("svg")
     .attr("height", height);
 
 // Get the topojson from cartomap.github.io for the map of the Netherlands
-d3.json('https://cartomap.github.io/nl/wgs84/gemeente_2022.topojson').then(function(nlgemeenten2009) {
-    var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeente_2022);
+// 'https://cartomap.github.io/nl/wgs84/gemeente_2022.topojson'
+d3.json("data/nlgemeenten2009.json").then(function(nlgemeenten2009) {
+    // var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeente_2022);
+    var gemeenten = topojson.feature(nlgemeenten2009, nlgemeenten2009.objects.gemeenten);
 
     svg.append("g")
         .attr("class", "land")
@@ -45,11 +49,30 @@ d3.json('https://cartomap.github.io/nl/wgs84/gemeente_2022.topojson').then(funct
         .data(gemeenten.features)
         .enter().append("path")
         .attr("d", path)
+        .on("mouseover", function(d) {
+            var xPosition = d.x - 200;
+            var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
+            svg.append("text")
+                .attr("class", "info")
+                .attr("id", "tooltip")
+                .attr("x", xPosition)
+                .attr("y", yPosition)
+                .text(d.target.__data__.properties.gemeente + " (" + thsd(d.target.__data__.properties.inwoners) + " inwoners)");
+            d3.select(this)
+                .attr("class", "selected");
+        })
+        .on("mouseout", function(d) {
+            d3.select("#tooltip").remove();
+            d3.select(this)
+            .transition()
+            .attr("class", "land")
+            .duration(250)
+        });
 });
 
-d3.csv('data/waterlevel2022.csv').then(function(waterlevel2022) {
+d3.csv('data/waterlevels.csv').then(function(waterlevels) {
     svg.selectAll("circle")
-        .data(waterlevel2022).enter()
+        .data(waterlevels).enter()
         .append("circle")
         .attr("cx", function(d) {
             var c = Utm2Wgs(d.X, d.Y, 31)
@@ -65,7 +88,7 @@ d3.csv('data/waterlevel2022.csv').then(function(waterlevel2022) {
         .attr("r", "10px")
         .attr("class", "waterlevel")
         // Define color based on water level -> NUMERIEKEWAARDE
-        .style("fill", d => color(d.NUMERIEKEWAARDE))
+        .style("fill", d => color(d['2022']))
         // Show the water level when hovering over a point
         .on("mouseover", function(d) {
             
@@ -76,7 +99,7 @@ d3.csv('data/waterlevel2022.csv').then(function(waterlevel2022) {
                 .attr("id", "tooltip")
                 .attr("x", xPosition)
                 .attr("y", yPosition)
-                .text("Water level above NAP: " + d.target.__data__.NUMERIEKEWAARDE)
+                .text("Water level above NAP: " + d.target.__data__['2022'])
             d3.select(this)
                 .attr("class", "selected");
         })
@@ -87,40 +110,52 @@ d3.csv('data/waterlevel2022.csv').then(function(waterlevel2022) {
             .attr("class", "waterlevel")
             .duration(250)
         });
+
+        slider.addEventListener('input', event => {
+            // Transform water level points
+            svg.selectAll("circle")
+                .on("mouseover", function(d) {
+                
+                    var xPosition = d.x - 200;
+                    var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
+                    svg.append("text")
+                        .attr("class", "info")
+                        .attr("id", "tooltip")
+                        .attr("x", xPosition)
+                        .attr("y", yPosition)
+                        .text("Water level above NAP: " + d.target.__data__[event.target.value])
+                    d3.select(this)
+                        .attr("class", "selected");
+                })
+            svg.selectAll("circle").transition()
+                .duration(750)
+                
+                .attr("cx", function(data) {
+                    var c = Utm2Wgs(data.X, data.Y, 31)
+                    var p = projection(c)
+                    return p[0]
+                })
+                .attr("cy", function(data) {
+                    var c = Utm2Wgs(data.X, data.Y, 31)
+                    var p = projection(c)
+                    return p[1]
+                })
+                .style("fill", function(data) {
+                    return color(data[event.target.value])
+                })
+                .style("display", function(data) {
+                    if (data[event.target.value] == "") {
+                        return "None";
+                    }
+                    return "Block";
+                })
+                
+
+            const display = document.getElementById('display')
+            display.innerText = event.target.value;
+        })
+
 });
-
-// Get data from slider
-const getData = value => d3.csv(`data/waterlevel${value}.csv`)
-const slider = document.getElementById('selectYear')
-
-slider.addEventListener('input', event => getData(event.target.value).then(
-	data => {
-        // Add new data to current water level points
-        svg.selectAll("circle")
-            .data(data).enter()
-        // Transform water level points
-        svg.selectAll("circle").transition()
-            .duration(750)
-            
-            .attr("cx", function(data) {
-                var c = Utm2Wgs(data.X, data.Y, 31)
-                var p = projection(c)
-                return p[0]
-            })
-            .attr("cy", function(data) {
-                var c = Utm2Wgs(data.X, data.Y, 31)
-                var p = projection(c)
-                return p[1]
-            })
-            .style("fill", function(data) {
-                return color(data.NUMERIEKEWAARDE)
-            })
-        
-
-        const display = document.getElementById('display')
-        display.innerText = event.target.value;
-  }
-))
 
 
   

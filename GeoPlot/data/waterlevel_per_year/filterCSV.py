@@ -21,6 +21,9 @@ def makeCSV(filename1, filename2):
     keep_col = ['X','Y','NUMERIEKEWAARDE', 'WAARNEMINGDATUM']
     
     df = new_df[keep_col]
+
+    df.reset_index(drop=True)
+    
     df.to_csv(filename1)
 
 
