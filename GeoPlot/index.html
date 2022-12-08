@@ -13,9 +13,13 @@
     <script src="http://d3js.org/d3.v7.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
-
-    <p id="display">2022</p>
-    <input type="range" id="selectYear" name="volume"  min="2015" max="2022">
+    <div id="sliderbox">
+      <p id="display">2015</p>
+      <input type="range" id="selectYear" name="volume"  min="2015" max="2021" value="2015">
+      <p id="displayTo">2016</p>
+      <input type="range" id="selectYearTo" name="volume"  min="2016" max="2022"value="2015">
+    </div>
+    
       
     
     <script src="GeoPlot.js"></script>

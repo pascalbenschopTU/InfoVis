@@ -15,12 +15,18 @@ var nl_NL = {
 
 var NL = d3.timeFormatDefaultLocale(nl_NL);
 
-const slider = document.getElementById('selectYear')
+const sliderFrom = document.getElementById('selectYear')
+const sliderTo = document.getElementById('selectYearTo')
+const display = document.getElementById('display')
+const displayTo = document.getElementById('displayTo')
+
+var yearFrom = sliderFrom.value
+var yearTo = sliderTo.value
 
 var thsd = d3.format("d"); 
 
 // Scaling is from -40cm NAP to 200cm NAP
-var color = d3.scaleLinear().domain([-40,200]).range(["white", "blue"])
+var color = d3.scaleLinear().domain([-50,50]).range(["white", "blue"])
 
 var width = 1100,
     height = 900;
@@ -88,18 +94,22 @@ d3.csv('data/waterlevels.csv').then(function(waterlevels) {
         .attr("r", "10px")
         .attr("class", "waterlevel")
         // Define color based on water level -> NUMERIEKEWAARDE
-        .style("fill", d => color(d['2022']))
+        .style("fill", function(data) {
+            var rangeData = data[yearTo] - data[yearFrom]
+            return color(rangeData)
+        })
         // Show the water level when hovering over a point
         .on("mouseover", function(d) {
             
             var xPosition = d.x - 200;
             var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
+            var data = d.target.__data__[yearTo] - d.target.__data__[yearFrom]
             svg.append("text")
                 .attr("class", "info")
                 .attr("id", "tooltip")
                 .attr("x", xPosition)
                 .attr("y", yPosition)
-                .text("Water level above NAP: " + d.target.__data__['2022'])
+                .text("Water level above NAP: " + data)
             d3.select(this)
                 .attr("class", "selected");
         })
@@ -111,21 +121,25 @@ d3.csv('data/waterlevels.csv').then(function(waterlevels) {
             .duration(250)
         });
 
-        slider.addEventListener('input', event => {
+        [sliderFrom, sliderTo].forEach(slider => slider.addEventListener('input', event => {
+            // sliderTo.value = sliderFrom.value > sliderTo.value ? sliderFrom.value : sliderTo.value;
+            adjustSlider(sliderFrom, sliderTo, event.target == sliderTo)
+            yearFrom = sliderFrom.value
+            yearTo = sliderTo.value
             // Transform water level points
             svg.selectAll("circle")
                 .on("mouseover", function(d) {
-                
                     var xPosition = d.x - 200;
                     var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
+                    var data = d.target.__data__[yearTo] - d.target.__data__[yearFrom]
                     svg.append("text")
                         .attr("class", "info")
                         .attr("id", "tooltip")
                         .attr("x", xPosition)
                         .attr("y", yPosition)
-                        .text("Water level above NAP: " + d.target.__data__[event.target.value])
+                        .text("Water level above NAP: " + data)
                     d3.select(this)
-                        .attr("class", "selected");
+                        .attr("class", "selected")
                 })
             svg.selectAll("circle").transition()
                 .duration(750)
@@ -141,21 +155,31 @@ d3.csv('data/waterlevels.csv').then(function(waterlevels) {
                     return p[1]
                 })
                 .style("fill", function(data) {
-                    return color(data[event.target.value])
+                    var rangeData = data[yearTo] - data[yearFrom]
+                    return color(rangeData)
                 })
                 .style("display", function(data) {
-                    if (data[event.target.value] == "") {
+                    if (data[yearTo] == "" || data[yearFrom] == "") {
                         return "None";
                     }
                     return "Block";
                 })
                 
-
-            const display = document.getElementById('display')
-            display.innerText = event.target.value;
-        })
+            display.innerText = yearFrom;
+            displayTo.innerText = yearTo;
+            
+        }));
 
 });
+
+function adjustSlider(s1, s2, bool) {
+    if (s1.value > s2.value && bool) {
+        s1.value = s2.value
+    }
+    if (s1.value > s2.value) {
+        s2.value = s1.value
+    }
+}
 
 
   
