@@ -5,6 +5,9 @@ def makeCSV(filename):
 
     def getNumber(string):
         return int(string.split(",")[0])
+
+    def getInt(string):
+        return int(string)
     
     def getYear(string):
         return int(string.split("-")[2])
@@ -14,6 +17,7 @@ def makeCSV(filename):
 
     keep_col = ['X','Y','NUMERIEKEWAARDE', 'WAARNEMINGDATUM']
     new_f = df[keep_col]
+    new_f['NUMERIEKEWAARDE'] = new_f['NUMERIEKEWAARDE'].apply(getInt)
     new_f = new_f[new_f['NUMERIEKEWAARDE'] < 10000] # Remove erroneous 99999999 values
     new_f['WAARNEMINGDATUM'] = new_f['WAARNEMINGDATUM'].apply(getYear) # Add datum in year value
     

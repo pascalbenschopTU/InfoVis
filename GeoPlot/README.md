@@ -15,6 +15,10 @@ https://github.com/djvanderlaan/rijksdriehoek
 
 https://github.com/Kevo89/UTM2LatLong/blob/master/utm2wgs.py 
 
+## Converting GeoJSON to TopoJSON
+
+https://mapshaper.org/
+
 
 ## Example
 
