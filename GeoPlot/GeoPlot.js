@@ -21,7 +21,7 @@ const button = document.getElementById('toggleDensity')
 var thsd = d3.format("d"); 
 
 // Scaling is from -40cm NAP to 200cm NAP
-var waterColor = d3.scaleLinear().domain([-50 ,0, 4000]).range(["red", "white", "blue"])
+var waterColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
 var densityColor = d3.scaleLinear().domain([50, 100, 500]).range(["lightblue", "green", "brown"])
 
 var width = 1100,
@@ -35,10 +35,9 @@ var projection = d3.geoMercator()
 var path = d3.geoPath()
     .projection(projection);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select(".holder").append("svg")
     .attr("width", width)
-    .attr("height", height);
-
+    .attr("height", height)
 
 Promise.all([
     d3.json("https://cartomap.github.io/nl/wgs84/gemeente_2022.topojson"),
@@ -71,7 +70,6 @@ Promise.all([
                 .data(density.features)
                 .enter().append("path")
                 .attr("d", path)
-                // .style("opacity", 0.5)
                 .style("fill", function(data) {
                     return densityColor(data.properties.aantal_inwoners)
                 })
@@ -95,19 +93,19 @@ Promise.all([
             .attr("r", "10px")
             .attr("class", "waterlevel")
             // Define color based on water level -> NUMERIEKEWAARDE
-            .style("fill", d => waterColor(d['2022']))
+            .style("fill", d => waterColor(d['2015']))
             .style("stroke", "black")
             .style("position", "absolute")
             // Show the water level when hovering over a point
             .on("mouseover", function(d) {
-                var xPosition = d.x - 200;
-                var yPosition = d.y > 150 ? d.y - 100 : d.y;
+                var xPosition = d.x - 900;
+                var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
                 svg.append("text")
                     .attr("class", "info")
                     .attr("id", "tooltip")
                     .attr("x", xPosition)
                     .attr("y", yPosition)
-                    .text("Water level above NAP: " + d.target.__data__['2022'])
+                    .text("Water level above NAP: " + d.target.__data__['2015'])
                     .style("fill", "white")
                     .style("text-shadow", "0.07em 0 black, 0 0.07em black, -0.07em 0 black, 0 -0.07em black")
                 d3.select(this)
@@ -126,7 +124,7 @@ Promise.all([
             svg.selectAll("circle")
                 .on("mouseover", function(d) {
                 
-                    var xPosition = d.x - 200;
+                    var xPosition = d.x - 900;
                     var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
                     svg.append("text")
                         .attr("class", "info")

@@ -14,11 +14,18 @@
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
 
-    <div>
-      <p id="display">2022</p>
-      <input type="range" id="selectYear" name="volume"  min="2010" max="2022">
-      <button type="button" value="off" id="toggleDensity">toggleDensity</button>
+    
+    
+    <div class="holder">
+      <div>
+        <p id="display">2015</p>
+        <input type="range" id="selectYear" name="volume"  min="2010" max="2022" value="2015">
+        <button type="button" value="off" id="toggleDensity">toggleDensity</button>
+      </div>
+      <iframe id="iframe" width="700" height="900" frameborder="0" scrolling="no" allowfullscreen 
+      src="https://ahn.arcgisonline.nl/ahnviewer/?center=153758.116%2C462917.5619%2C28992&level=3&locale=en" crossorigin></iframe>
     </div>
+    
 
       
     
