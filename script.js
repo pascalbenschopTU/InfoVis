@@ -57,7 +57,6 @@ d3.csv("testDataSet.csv").then(function (data) {
   }
 
   function update_axis(d) {
-    console.log("check");
     d3.selectAll("svg").remove();
     update_graph();
 }
@@ -70,7 +69,6 @@ d3.csv("testDataSet.csv").then(function (data) {
   }
 
   function getNewDimensionOrder(i, d) {
-    console.log(i)
     temp_array = Array(dimensions.length);
     counter = 0
     while(dimensions.length > 0) {
@@ -88,8 +86,6 @@ d3.csv("testDataSet.csv").then(function (data) {
     if(!temp_array[temp_array.length-1]) {
       temp_array[counter] = d
     }
-
-    console.log(temp_array)
 
     return temp_array
   }
@@ -144,7 +140,6 @@ d3.csv("testDataSet.csv").then(function (data) {
 
         })
         .on("end", function (event, d) {
-          console.log("end");
           if (Math.abs(event.x) < 20) {
             // no movement, invert axis
             var extent = invert_axis(d);
@@ -162,7 +157,6 @@ d3.csv("testDataSet.csv").then(function (data) {
   }
 
   function draw_graph() {
-    console.log("hello!");
     // Draw the lines
     svg
       .selectAll("myPath")
@@ -182,7 +176,7 @@ d3.csv("testDataSet.csv").then(function (data) {
       // For each dimension of the dataset I add a 'g' element:
       .data(dimensions).enter().append("g")
       // I translate this element to its right position on the x axis
-      .attr("transform", function (d) { console.log(x(d)); return "translate(" + x(d) + ")"; })
+      .attr("transform", function (d) { return "translate(" + x(d) + ")"; })
       .attr("class", "axis")
       // And I build the axis with the call function
       .each(function (d) { d3.select(this).call(d3.axisLeft().ticks(5).scale(y[d])); })
@@ -198,11 +192,9 @@ d3.csv("testDataSet.csv").then(function (data) {
 
         })
         .on("drag", function (event, d) {
-          console.log("drag");
           this.__dragged__ = true;
         })
         .on("end", function (event, d) {
-          console.log("end");
           if (Math.abs(event.x) < 20) {
             // no movement, invert axis
             var extent = invert_axis(d);
