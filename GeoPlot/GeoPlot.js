@@ -17,6 +17,8 @@ var NL = d3.timeFormatDefaultLocale(nl_NL);
 
 const slider = document.getElementById('selectYear')
 const button = document.getElementById('toggleDensity')
+const iframe = document.getElementById('iframe')
+
 
 var thsd = d3.format("d"); 
 
@@ -24,7 +26,7 @@ var thsd = d3.format("d");
 var waterColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
 var densityColor = d3.scaleLinear().domain([50, 100, 500]).range(["lightblue", "green", "brown"])
 
-var width = 1100,
+var width = 900,
     height = 900;
 
 var projection = d3.geoMercator()
@@ -121,7 +123,7 @@ Promise.all([
 
         slider.addEventListener('input', event => {
             // Transform water level points
-            svg.selectAll("circle")
+            svg.selectAll(".waterlevel")
                 .on("mouseover", function(d) {
                 
                     var xPosition = d.x - 900;
@@ -137,7 +139,7 @@ Promise.all([
                     d3.select(this)
                         .attr("class", "selected");
                 })
-            svg.selectAll("circle").transition()
+            svg.selectAll(".waterlevel").transition()
                 .duration(750)
                 
                 .attr("cx", function(data) {
@@ -182,4 +184,57 @@ Promise.all([
 
     showNetherlands(data)
     showWaterLevels(data)
+
+    svg.selectAll(".waterlevel")
+        .on("click", e => focusOnDataPoint(e))
+
+    function focusOnDataPoint(event) {
+        var X = event.target.__data__.X
+        var Y = event.target.__data__.Y
+
+        svg.selectAll(".highlighted").remove()
+
+        svg.append("circle")
+            .attr("class", "highlighted")
+            .attr("cx", function() {
+                var c = Utm2Wgs(X, Y, 31)
+                var p = projection(c)
+                return p[0]
+            })
+            .attr("cy", function(data) {
+                var c = Utm2Wgs(X, Y, 31)
+                var p = projection(c)
+                return p[1]
+            })
+            .attr("r", "14px")
+            .attr("fill", "none")
+            .attr("stroke", "purple")
+            .attr("stroke-width", "5px")
+
+        
+        focusHeightMap(X, Y)
+        plotWaterLevelGraph(X)
+    }
+
+    function plotWaterLevelGraph(X) {
+        var waterlevels = data[2].find(item => item.X == X)
+        var waterlevel_data = []
+        for (var i = 2010; i <= 2022; i++) {
+            if (waterlevels[i] != "") {
+                waterlevel_data.push([i, waterlevels[i]])
+            }
+        }
+
+        var w = new WeatherGraph(waterlevel_data, "waterlevels", "blue", "red")
+        
+        w.plotDataGraph()
+    }
+
+    function focusHeightMap(X,Y) {
+        var wgs = Utm2Wgs(X, Y, 31)
+        var rd = rijksdriehoek(wgs[0], wgs[1])
+        
+        var src = "https://ahn.arcgisonline.nl/ahnviewer/?center=" + rd[0] + "%2C"+ rd[1] + "%2C28992&level=6&locale=en"
+        iframe.src = src
+    }
 })
