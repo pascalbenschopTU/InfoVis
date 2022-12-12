@@ -10,18 +10,19 @@ var svg = d3.select("#pcp-plot")
   .attr("height", height + margin.top + margin.bottom)
   .append("g")
   .attr("transform",
-    "translate(" + margin.left + "," + margin.top + ")");
-
+    "translate(" + margin.left + "," + margin.top + ")")
+   
 // Parse the Data
 d3.csv("testDataSet.csv").then(function (data) {
 
-  dimensions = ["AvgRain", "AvgTemp", "avgCO2World"]
+  dimensions = ["AvgRain", "AvgTemp", "avgCO2World", "seaLevel"]
 
   var y = {}
-  y["AvgTemp"] = d3.scaleLinear().domain([0, 40]).range([height, 0])
-  y["AvgRain"] = d3.scaleLinear().domain([0, 1300]).range([height, 0])
+  y["AvgTemp"] = d3.scaleLinear().domain([0, 15]).range([height, 0])
+  y["AvgRain"] = d3.scaleLinear().domain([400, 1500]).range([height, 0])
   y["avgCO2World"] = d3.scaleLinear().domain([-3, 50]).range([height, 0])
-
+  y["seaLevel"] = d3.scaleLinear().domain([180, 250]).range([height, 0])
+  
   x = d3.scalePoint()
     .range([0, width])
     .domain(dimensions);
@@ -34,6 +35,7 @@ d3.csv("testDataSet.csv").then(function (data) {
 
   // Highlight the specie that is hovered
   var highlight = function (d) {
+    console.log()
     year = d.path[0].__data__.Year;
 
     // first every group turns grey
