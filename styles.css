@@ -9,12 +9,20 @@ h1 {
     font-family: 'Montserrat', sans-serif;
     margin-top: 180px;
 }
-p {
+p, a {
     font-family: 'Montserrat', sans-serif;
     font-size: 50px;
 }
 
-p.white {
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p.white, a.white {
     color: white;
 }
 
@@ -63,4 +71,8 @@ strong {
 
 .container:nth-child(even) {
     background-color: #a2d9ff;
+}
+
+#pcp-plot text{ 
+    font-size: 16px;
 }
