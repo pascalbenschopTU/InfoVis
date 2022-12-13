@@ -27,6 +27,8 @@ d3.csv("../data/pcpDataSet.csv").then(function (data) {
 
   // Highlight
   var highlight = function (d) {
+    document.getElementById("#pcp-data-text").innerHTML = "In the <strong>" + d.Year + "</strong> on average <strong>" + d.AvgRain + "</strong> fell, the average temprature was <strong>" + d.AvgTemp + "</strong> the average co2 in the world was <strong>" + d.avgCO2World + "</strong> and the sealevel rose <strong>" + d.seaLevel + "</strong> compared to 1883"  
+
     year = d.Year;
 
     d3.selectAll(".line")
@@ -110,7 +112,7 @@ d3.csv("../data/pcpDataSet.csv").then(function (data) {
       .on("mouseleave", function(event, d){
         doNotHighlight();
       })
-
+      
     svg.selectAll("myAxis")
       .data(dimensions).enter().append("g")
       .attr("transform", function (d) { return "translate(" + x(d) + ")"; })
