@@ -4,7 +4,9 @@
         <script src="https://d3js.org/d3.v7.min.js"></script>
         <script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
         <script src="libs/numeric-1.2.6.min.js"></script>
-        <script src="polyfit_min.js"></script>
+        <script src="src/polyfit_min.js"></script>
+        <script src="src/data_utils.js"></script>
+        <script src="src/scatter_plot.js"></script>
         <title>Scatter Plot</title>
     </head>
 
@@ -45,294 +47,12 @@
         }
     </style>
 
-    <script>
-        class GraphWrapper{
-            constructor(data, graph_name, color_points, color_trendline) {
-                this.data = data;
-                this.color_points = color_points;
-                this.color_trendline = color_trendline;
-                this.xScale = null;
-                this.yScale = null;
-                this.xAxis = null;
-                this.yAxis = null;
-                this.lRL = null;
-                this.xOffset = 0;
-                this.yOffset = 0;
-                this.yMax = Math.max(...data.map(d => d[1]))
-                this.predictionType = 1; // 0 == bad, 1 == normal, 2 == good
-                this.root_group = null;
-                this.svg = d3.select("body").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("id", this.graph_name);
-                this.graph_name = graph_name;
-                this.graph_name_xAxis = graph_name + "_x";
-                this.graph_name_yAxis = graph_name + "_y";
-                this.graph_name_predictionG = graph_name + "_predG";
-            }
-            plotDataGraph(){
-                if (this.root_group != null){
-                    this.root_group.remove();
-                }else{
-                    this.lRL = calculateRegression(this.data)
-                }
-                this.root_group = this.svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-                // plot normal trendline
-                const xCoordinates = [parseFloat(this.data[0][0]), parseFloat(this.data.slice(-1)[0][0])];
-                const reg_points = xCoordinates.map(d => [d, this.lRL(d)])
-                let predP = this.predictPoints()
-                this.plotDataPoints()
-                this.plotDataTrendlinePoly(this.data, this.color_trendline);
-
-                // plot prediction trendline
-                if (this.xOffset > 0){
-                    this.plotDataTrendlinePoly(predP, this.color_trendline)
-                }
-
-            }
-            updateGraphByRange(range){
-                this.xOffset = range;
-
-                this.plotDataGraph()
-            }
-            updateGraphByType(type){
-                this.predictionType = type;
-
-                this.plotDataGraph()
-            }
-            resetGraph(){
-                if (this.svg != null){
-                    this.svg.remove();
-                }
-                this.xOffset = 0
-                this.yOffset = 0
-                this.svg = d3
-                    .select("body")
-                    .append("svg")
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
-                    .attr("id", this.graph_name);
-                this.plotDataGraph();
-            }
-            predictPoints(scale=0.1){
-                if (this.xOffset <= 0){
-                    return []
-                }
-                const slope = this.lRL(this.data.slice(-1)[0][0]) - this.lRL(this.data.slice(-2)[0][0]);
-                var points = [[this.data.slice(-1)[0][0], this.lRL(this.data.slice(-1)[0][0])]]
-                var slopeFunction = null
-                switch (this.predictionType){
-                    // x = 100
-                    // y = y at 2000 + case height
-                    // 304 = z * 100^2 + c
-                    // y / 100^2 = z
-
-                    case 0: // low ==> 100 years rise 304mm
-                        slopeFunction = function (d, scale) {
-                            const slopeChange = 0.003 * 2;
-                            console.log(Math.max(slope - slopeChange * d,0))
-                            return Math.max(slope - slopeChange * d,0)
-                            // let modifier = (1 / (Math.exp(d * scale) - 1))
-                            // return Math.min(slope * modifier, slope)
-                        }
-                        break;
-                    case 1: // intermediate-low ==> 100 years rise 460mm
-                        slopeFunction = function (d, scale) {
-                            return slope
-                        }
-                        break;
-                    case 2: // observed trend ==> 100 years rise 701mm
-                        slopeFunction = function (d, scale) {
-                            return Math.max((slope + slope * d) * scale, slope)
-                        }
-                        break;
-                    case 3: // intermediate ==> 100 years rise 975mm
-
-                        break;
-                    case 4: // intermediate-high ==> 100 years rise 1524mm
-
-                        break;
-                    case 5: // high ==> 100 years rise 2042mm
-
-                        break;
-                    default:
-                        return [];
-
-                }
-                for(let i = 1; i < this.xOffset; i++){
-                    let year = parseInt(points[0][0]) + i
-                    let yVal = points.slice(-1)[0][1] + slopeFunction(i, scale)
-                    points.push([year, yVal])
-                }
-
-                this.yOffset = Math.max(0,points.slice(-1)[0][1] - this.yMax)
-                return points
-            }
-            plotDataPoints(){
-                // scale data to axis
-                this.xScale = d3.scaleLinear().domain([d3.min(this.data, (d) => d[0]), d3.max(this.data, (d) => d[0]) + this.xOffset]).range([0, width]);
-                this.yScale = d3.scaleLinear().domain([0, d3.max(this.data, (d) => parseFloat(d[1])) + this.yOffset]).range([height, 0]);
-                this.xAxis = d3.axisBottom().scale(this.xScale);
-                this.yAxis = d3.axisLeft().scale(this.yScale);
-                // add axis to svg group
-                this.root_group.append("g").classed("xaxis", true).attr("transform", `translate(0,${height})`).attr("id", this.graph_name_xAxis).call(this.xAxis);
-                this.root_group.append("g").classed("yaxis", true).attr("id", this.graph_name_yAxis).call(this.yAxis);
-                const group = this.root_group.append("g");
-
-                const marks = group
-                    .selectAll("circle")
-                    .data(this.data)
-                    .enter().append("circle")
-                    .attr("r", 3.5)
-                    .attr("cx", d => this.xScale(d[0]))
-                    .attr("cy", d => this.yScale(d[1]))
-                    .style("fill", this.color_points);
-
-            }
-
-            // https://www.climateneutralgroup.com/en/news/five-future-scenarios-ar6-ipcc/
-            //
-            plotDataTrendlinePoly(datapoints, color="green"){
-                var coeff = generateFit(datapoints)
-                var xdata = datapoints.map(d => d[0])
-                var ydata = yHat(xdata, coeff)
-                var lineFunction = d3.line()
-                    .x(d => this.xScale(d[0]))
-                    .y(d => this.yScale(d[1]))
-                    .curve(d3.curveBasis);
-                var dataZip = xdata.map(function (x, y) {
-                   return [x,ydata[y]] ;
-                });
-                this.root_group.append("path")
-                    .attr('class', 'regression-path')
-                    .datum(dataZip)
-                    .attr('d', lineFunction)
-                    .attr("stroke", color)
-                    .attr("stroke-width", 4)
-                    .attr("fill", "none");
-            }
-            plotDataTrendline(datapoints, color="green"){
-                // trendline with simple statistics
-                if (this.root_group != null){
-                    // const line = d3.line().x(d => this.xScale(parseFloat(d[0]))).y(d => this.yScale(parseFloat(d[1])));
-                    var line = d3.line()
-                        .curve(d3.curveBasis)
-                        .x(d => this.xScale(parseFloat(d[0])))
-                        .y(d => this.yScale(parseFloat(d[1])));
-                    this.root_group.append("path").datum(datapoints).attr("d", line).attr("stroke", color).attr("stroke-width", 3).attr("id", this.graph_name_predictionG).style("fill", "none");
-                }
-            }
-        }
-        function loadCSVData(filename, callback){
-            d3.csv(filename).then((csv) =>{
-                console.log("Loaded data from %s!", filename);
-                console.log(csv)
-                callback(csv)
-            }).catch((error) =>{
-                console.log(error);
-                console.log("Failed to load data from %s!", filename);
-            });
-        }
-        function calculateRegression(data, offset=0){
-            const lR = ss.linearRegression(data.map(d => [parseFloat(d[0]), parseFloat(d[1])]));
-            return ss.linearRegressionLine(lR);
-        }
-
-        // global data
-        let predictionRange = 0.0;
-        let predictionType = 2;
-        let graphRain = null;
-        let graphTemp = null;
-        let grapSeaLevel = null;
-        // page initialization functions
-        function showWeatherData(data){
-            // plot temp data, x years, y avg temp
-            const dataTemp = data.map(d => [parseFloat(d.Year), parseFloat(d.AvgTemp)]);
-            graphTemp = new GraphWrapper(dataTemp, "temp_graph", "red", "orange");
-            graphTemp.plotDataGraph()
-
-            // plot rain data, x years, y avg rain
-            const dataRain = data.map(d => [parseFloat(d.Year), parseFloat(d.AvgRain)])
-            graphRain = new GraphWrapper(dataRain, "rain_graph", "blue", "green")
-            graphRain.plotDataGraph()
-        }
-
-        function showSeaLevelData(data){
-            const dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)])
-            grapSeaLevel = new GraphWrapper(dataSealevel, "sealevel_graph", "blue", "green")
-            grapSeaLevel.plotDataGraph()
-        }
-
-        // Button callbacks
-        function showRange(data){
-            predictionRange = parseInt(data)
-            document.getElementById("predictionRangeLabel").innerText = predictionRange + " Years"
-        }
-        function showType(data){
-            predictionType = parseInt(data)
-            let output = "";
-            switch (predictionType) {
-                case 0:
-                    output = "Bad"
-                    break
-                case 1:
-                    output = "Normal"
-                    break
-                case 2:
-                    output = "Good"
-                    break
-            }
-
-            document.getElementById("predictionTypeLabel").innerText = output
-        }
-        function updateGraphByType(data){
-            // change the behaviour of the trendline extension based on data
-            if (graphTemp != null){
-                graphTemp.updateGraphByType(parseInt(data))
-            }
-            if (graphRain != null){
-                graphRain.updateGraphByType(parseInt(data))
-            }
-            if (grapSeaLevel != null){
-                grapSeaLevel.updateGraphByType(parseInt(data))
-            }
-        }
-        function updateGraphByRange(data){
-            // extend both trendlines by "data" years
-            if (graphTemp != null){
-                graphTemp.updateGraphByRange(parseFloat(data));
-            }
-            if (graphRain != null){
-                graphRain.updateGraphByRange(parseFloat(data));
-            }
-            if (grapSeaLevel != null){
-                grapSeaLevel.updateGraphByRange(parseFloat(data));
-            }
-        }
-        function resetGraphs(){
-            if (graphTemp != null){
-                graphTemp.resetGraph();
-            }
-            if (graphRain != null){
-                graphRain.resetGraph();
-            }
-            if (grapSeaLevel != null){
-                grapSeaLevel.resetGraph();
-            }
-            document.getElementById("predictionTypeSlider").value = 1;
-            document.getElementById("predictionRangeSlider").value = 0;
-            document.getElementById("predictionTypeLabel").innerHTML = "Normal";
-            document.getElementById("predictionRangeLabel").innerHTML = "0 Years";
-            predictionRange = 0.0;
-            predictionType = 1;
-        }
-
-
-    </script>
     <body>
         <h1 id="title">Test Plot</h1>
         <div>
             <div>
                 <label for="predictionTypeSlider">Prediction Type</label>
-                <input type="range" min="0" max="2" value="1" class="slider" id="predictionTypeSlider" style="background: #d3d3d3" onchange="updateGraphByType(this.value)" oninput="showType(this.value)">
+                <input type="range" min="0" max="4" value="2" class="slider" id="predictionTypeSlider" style="background: #d3d3d3" onchange="updateGraphByType(this.value)" oninput="showType(this.value)">
                 <label id="predictionTypeLabel">Normal</label>
             </div>
             <div>
@@ -346,8 +66,8 @@
         </div>
         <script>
             const margin = { top: 50, bottom: 40, left: 50, right: 50 };
-            const width = 800 - margin.left - margin.right;
-            const height = 600 - margin.top - margin.bottom;
+            const width = 1200 - margin.left - margin.right;
+            const height = 500 - margin.top - margin.bottom;
 
             loadCSVData("/scatterPlots/data/SeaLevelDatasetParsed2.csv", showSeaLevelData)
         </script>
