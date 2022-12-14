@@ -1,9 +1,9 @@
-function rijksdriehoek(λ, φ) {
+function rijksdriehoek(lambda, sigma) {
   // Coordinates of origin (Amersfoort)
   var x0 = 155000.0;
   var y0 = 463000.0;
-  var φ0 = 52.15517440;
-  var λ0 =  5.38720621;
+  var sigma0 = 52.15517440;
+  var lambda0 =  5.38720621;
   var R = [
     {"p":0, "q":1, "R": 190094.945},
     {"p":1, "q":1, "R": -11832.228},
@@ -25,21 +25,21 @@ function rijksdriehoek(λ, φ) {
     {"p":1, "q":1, "S": -0.032},
     {"p":0, "q":4, "S": 0.092},
     {"p":1, "q":4, "S": -0.054}]
-  var dφ = 0.36*(φ - φ0);
-  var dλ = 0.36*(λ - λ0);
+  var dsigma = 0.36*(sigma - sigma0);
+  var dlambda = 0.36*(lambda - lambda0);
   var x = x0;
   for (var i = 0; i < R.length; ++i) {
     var p = R[i].p;
     var q = R[i].q;
     var r = R[i].R;
-    x += r*Math.pow(dφ, p)*Math.pow(dλ, q);
+    x += r*Math.pow(dsigma, p)*Math.pow(dlambda, q);
   }
   var y = y0;
   for (var i = 0; i < S.length; ++i) {
     var p = S[i].p;
     var q = S[i].q;
     var s = S[i].S;
-    y += s*Math.pow(dφ, p)*Math.pow(dλ, q);
+    y += s*Math.pow(dsigma, p)*Math.pow(dlambda, q);
   }
   return [x, y];
 }

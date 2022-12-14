@@ -6,6 +6,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
 <script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
 </head>
 <body>
 
@@ -48,8 +50,34 @@
             <p> Some very nice graph here</p>
         </div>
     </div>
+    <svg class="svg-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path fill="#a2d9ff" fill-opacity="1" d="M0,32L40,32C80,32,160,32,240,69.3C320,107,400,181,480,224C560,267,640,277,720,240C800,203,880,117,960,117.3C1040,117,1120,203,1200,218.7C1280,235,1360,181,1400,154.7L1440,128L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"></path>
+    </svg> 
+</div>
+
+<div class="container">
+    <div class="container-double">
+        <div class="text-container">
+            
+           
+            
+    
+        </div>
+        <div class="graph-container">
+            <div id="netherlands-plot">
+                <div>
+                    <p id="display">2015</p>
+                    <input type="range" id="selectYear" name="volume"  min="2010" max="2022" value="2015">
+                    <button type="button" value="off" id="toggleDensity">toggleDensity</button>
+                  </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>
 <script src="scripts/pcp.js"></script>
+<script src="GeoPlot/GeoPlot.js"></script>
+<script src="GeoPlot/Scatterplot.js"></script>
+<script src="GeoPlot/Coordinates.js"></script>
 </html>

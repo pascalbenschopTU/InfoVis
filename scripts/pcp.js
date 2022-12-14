@@ -1,7 +1,7 @@
 // set the dimensions and margins of the graph
-const margin = { top: 30, right: 50, bottom: 10, left: 50 },
-  width = 900 - margin.left - margin.right,
-  height = 900 - margin.top - margin.bottom;
+const pcpMargin = { top: 30, right: 50, bottom: 10, left: 50 },
+  pcpWidth = 900 - pcpMargin.left - pcpMargin.right,
+  pcpHeight = 900 - pcpMargin.top - pcpMargin.bottom;
 
 // Parse the Data
 d3.csv("../data/pcpDataSet.csv").then(function (data) {
@@ -9,13 +9,13 @@ d3.csv("../data/pcpDataSet.csv").then(function (data) {
   dimensions = ["AvgRain", "AvgTemp", "avgCO2World", "seaLevel"]
 
   var y = {}
-  y["AvgTemp"] = d3.scaleLinear().domain([0, 15]).range([height, 0])
-  y["AvgRain"] = d3.scaleLinear().domain([400, 1500]).range([height, 0])
-  y["avgCO2World"] = d3.scaleLinear().domain([-3, 50]).range([height, 0])
-  y["seaLevel"] = d3.scaleLinear().domain([180, 250]).range([height, 0])
+  y["AvgTemp"] = d3.scaleLinear().domain([0, 15]).range([pcpHeight, 0])
+  y["AvgRain"] = d3.scaleLinear().domain([400, 1500]).range([pcpHeight, 0])
+  y["avgCO2World"] = d3.scaleLinear().domain([-3, 50]).range([pcpHeight, 0])
+  y["seaLevel"] = d3.scaleLinear().domain([180, 250]).range([pcpHeight, 0])
 
   x = d3.scalePoint()
-    .range([0, width])
+    .range([0, pcpWidth])
     .domain(dimensions);
 
   draw_graph();
@@ -85,16 +85,16 @@ d3.csv("../data/pcpDataSet.csv").then(function (data) {
 
   function draw_graph() {
     x = d3.scalePoint()
-      .range([0, width])
+      .range([0, pcpWidth])
       .domain(dimensions);
 
     var svg = d3.select("#pcp-plot")
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("width", pcpWidth + pcpMargin.left + pcpMargin.right)
+      .attr("height", pcpHeight + pcpMargin.top + pcpMargin.bottom)
       .append("g")
       .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
+        "translate(" + pcpMargin.left + "," + pcpMargin.top + ")");
 
     svg
       .selectAll("myPath")
@@ -137,7 +137,7 @@ d3.csv("../data/pcpDataSet.csv").then(function (data) {
             // no movement, invert axis
             var extent = invert_axis(d);
           } else {
-            newPos = dimensions.indexOf(d) + Math.round(event.x / (width / (dimensions.length - 1)))
+            newPos = dimensions.indexOf(d) + Math.round(event.x / (pcpWidth / (dimensions.length - 1)))
             newPos = Math.max(0, newPos)
             newPos = Math.min(dimensions.length - 1, newPos)
             dimensions = getNewDimensionOrder(newPos, d)

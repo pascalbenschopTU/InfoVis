@@ -37,14 +37,14 @@ var projection = d3.geoMercator()
 var path = d3.geoPath()
     .projection(projection);
 
-var svg = d3.select(".holder").append("svg")
+var svg = d3.select("#netherlands-plot").append("svg")
     .attr("width", width)
     .attr("height", height)
 
 Promise.all([
     d3.json("https://cartomap.github.io/nl/wgs84/gemeente_2022.topojson"),
-    d3.json("data/population_density.json"),
-    d3.csv('data/waterlevels.csv')
+    d3.json("../data/population_density.json"),
+    d3.csv('../data/waterlevels.csv')
 ]).then(function (data) {
 
     function showNetherlands(data) {
