@@ -17,13 +17,13 @@ var NL = d3.timeFormatDefaultLocale(nl_NL);
 
 const slider = document.getElementById('selectYear')
 const button = document.getElementById('toggleDensity')
-const iframe = document.getElementById('iframe')
 
 
 var thsd = d3.format("d"); 
 
 // Scaling is from -40cm NAP to 200cm NAP
 var waterColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
+// var waterColor = d3.scaleLinear().domain([-50 ,0, 50, 200, 4000]).range(["#00008B", "blue", "lightblue", "green", "yellow"])
 var densityColor = d3.scaleLinear().domain([50, 100, 500]).range(["lightblue", "green", "brown"])
 
 var width = 900,
@@ -100,7 +100,7 @@ Promise.all([
             .style("position", "absolute")
             // Show the water level when hovering over a point
             .on("mouseover", function(d) {
-                var xPosition = d.x - 900;
+                var xPosition = d.x - 300;
                 var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
                 svg.append("text")
                     .attr("class", "info")
@@ -126,7 +126,7 @@ Promise.all([
             svg.selectAll(".waterlevel")
                 .on("mouseover", function(d) {
                 
-                    var xPosition = d.x - 900;
+                    var xPosition = d.x - 300;
                     var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
                     svg.append("text")
                         .attr("class", "info")
@@ -212,7 +212,7 @@ Promise.all([
             .attr("stroke-width", "5px")
 
         
-        focusHeightMap(X, Y)
+        // focusHeightMap(X, Y)
         plotWaterLevelGraph(X)
     }
 
@@ -238,3 +238,39 @@ Promise.all([
         iframe.src = src
     }
 })
+
+var svg_ = d3.select(".holder").append("svg")
+    .attr("width", 100)
+    .attr("height", 400)
+    .attr("")
+
+// create a list of keys
+var keys = waterColor.domain()
+svg.append("text")
+    .attr("x", 100)
+    .attr("y", 80)
+    .text("Water height above NAP")
+
+// Add one dot in the legend for each name.
+var size = 20
+svg.selectAll("mydots")
+  .data(keys)
+  .enter()
+  .append("rect")
+    .attr("x", 100)
+    .attr("y", function(d,i){ return 100 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
+    .attr("width", size)
+    .attr("height", size)
+    .style("fill", function(d){ return waterColor(d)})
+
+// Add one dot in the legend for each name.
+svg.selectAll("mylabels")
+  .data(keys)
+  .enter()
+  .append("text")
+    .attr("x", 100 + size*1.2)
+    .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
+    // .style("fill", function(d){ return waterColor(d)})
+    .text(function(d){ return d + " cm"})
+    .attr("text-anchor", "left")
+    .style("alignment-baseline", "middle")
