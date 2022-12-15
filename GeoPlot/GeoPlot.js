@@ -18,19 +18,28 @@ var NL = d3.timeFormatDefaultLocale(nl_NL);
 const dataChronologicalSlider = document.getElementById('selectYear')
 const densityButton = document.getElementById('toggleDensity')
 const dataSelectionSlider = document.getElementById('selectDataSelection')
+const scenarioSelectionSlider = document.getElementById('selectScenario')
 
-const Modes = {
+const dataSelection = {
 	waterlevel: 0,
 	landheight: 1,
 	difference: 2,
 }
 
-var mode = Modes.landheight;
+const scenarioSelection = {
+    Low: 0,
+    IntermediateLow: 1,
+    Normal: 2,
+    IntermediateHigh: 3,
+    High: 4
+}
+
+var mode = dataSelection.difference;
 
 var thsd = d3.format("d"); 
 
 // Scaling is from -40cm NAP to 200cm NAP
-var dataColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
+var dataColor = d3.scaleLinear().domain([-200 ,0, 50]).range(["white", "yellow", "red"])
 // var dataColor = d3.scaleLinear().domain([-50 ,0, 50, 200, 4000]).range(["#00008B", "blue", "lightblue", "green", "yellow"])
 var densityColor = d3.scaleLinear().domain([50, 500, 2000]).range(["lightblue", "blue", "red"])
 
@@ -87,15 +96,15 @@ Promise.all([
         // default scaling for mode 1 and 2
         dataColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
 
-        if (mode == Modes.waterlevel) {
+        if (mode == dataSelection.waterlevel) {
             createLegend("Water height above NAP")
             return data[indexYear]
         }
-        if (mode == Modes.landheight) {
+        if (mode == dataSelection.landheight) {
             createLegend("Land height around water height measuring points")
             return data['land_height']
         }
-        if (mode == Modes.difference) {
+        if (mode == dataSelection.difference) {
             dataColor = d3.scaleLinear().domain([-200 ,0, 50]).range(["white", "yellow", "red"])
             createLegend("Difference between land height and water height")
             return data[indexYear] - data['land_height']
