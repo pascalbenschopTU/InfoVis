@@ -27,14 +27,16 @@ const dataSelection = {
 }
 
 const scenarioSelection = {
-    Low: 0,
-    IntermediateLow: 1,
-    Normal: 2,
-    IntermediateHigh: 3,
-    High: 4
+    0: "Low",
+    1: "IntermediateLow",
+    2: "Normal",
+    3: "IntermediateHigh",
+    4: "High"
 }
 
 var mode = dataSelection.difference;
+
+var scenario = scenarioSelection[2];
 
 var thsd = d3.format("d"); 
 
@@ -63,7 +65,8 @@ var svg = d3.select(".holder").append("svg")
 Promise.all([
     d3.json("https://cartomap.github.io/nl/wgs84/provincie_2022.geojson"),
     d3.json("data/population_density.json"),
-    d3.csv('data/waterlevels.csv')
+    d3.csv('data/waterlevels.csv'),
+    d3.csv('data/scenarios.csv')
 ]).then(function(data) {
     function showNetherlands(data) {
         svg.append("g")
@@ -136,7 +139,7 @@ Promise.all([
         svg.selectAll(".waterlevel")
             // Define color based on water level -> NUMERIEKEWAARDE
             .style("fill", function(data) {
-                return dataColor(getWaterHeight(data, '2015'))
+                return dataColor(getWaterHeight(data, dataChronologicalSlider.value))
             })
             // Show the water level when hovering over a point
             .on("mouseover", function(d) {
@@ -164,7 +167,7 @@ Promise.all([
         dataChronologicalSlider.addEventListener('input', event => {
             // Transform water level points
             svg.selectAll(".waterlevel").transition()
-                .duration(750)
+                .duration(250)
                 .style("fill", function(data) {
                     return dataColor(getWaterHeight(data, event.target.value))
                 })
@@ -190,8 +193,60 @@ Promise.all([
                 
         })
 
+        scenarioSelectionSlider.addEventListener('input', event => {
+            scenario = scenarioSelection[event.target.value]
+            for (var i = 0; i < data[2].length; i++) {
+                var accumulated_value = 0;
+                for (var j = 2023; j <= 2119; j += 1) {
+                    accumulated_value += parseFloat(data[3][j-2023][scenario])
+                    data[2][i][j] =  (parseFloat(avgWaterHeights[i]) + accumulated_value).toString()
+                }
+            }
+            changeDataPoints()
+        })
+
         svg.selectAll(".waterlevel")
             .on("click", e => focusOnDataPoint(e))
+    }
+
+    function focusOnDataPoint(event) {
+        var X = event.target.__data__.X
+        var Y = event.target.__data__.Y
+
+        svg.selectAll(".highlighted").remove()
+
+        svg.append("circle")
+            .attr("class", "highlighted")
+            .attr("cx", function() {
+                var c = Utm2Wgs(X, Y, 31)
+                var p = projection(c)
+                return p[0]
+            })
+            .attr("cy", function() {
+                var c = Utm2Wgs(X, Y, 31)
+                var p = projection(c)
+                return p[1]
+            })
+            .attr("r", "14px")
+            .attr("fill", "none")
+            .attr("stroke", "purple")
+            .attr("stroke-width", "5px")
+
+        plotWaterLevelGraph(X)
+    }
+
+    function plotWaterLevelGraph(X) {
+        var waterlevels = data[2].find(item => item.X == X)
+        var waterlevel_data = []
+        for (var i = 2010; i <= 2022; i++) {
+            if (waterlevels[i] != "") {
+                waterlevel_data.push([i, waterlevels[i]])
+            }
+        }
+
+        var w = new WeatherGraph(waterlevel_data, "waterlevels", "blue", "red")
+        
+        w.plotDataGraph()
     }
     
     densityButton.addEventListener("click", _ => {
@@ -214,48 +269,26 @@ Promise.all([
     insertDataPoints(data)
     changeDataPoints()
 
-    function focusOnDataPoint(event) {
-        var X = event.target.__data__.X
-        var Y = event.target.__data__.Y
+    var avgWaterHeights = function getAvgWaterHeights() {
+        var avgWaterHeights = []
+        selectedColumns = data[2].columns.slice(5, 18);
 
-        console.log(event.target.__data__.index)
+        for (var i = 0; i < data[2].length; i++) {
+            var avg = 0
+            var datapoints = 0;
+            for (var j = 0; j < selectedColumns.length; j++) {
+                idx = selectedColumns[j]
+                // if value is NaN dont use it
+                if (data[2][i][idx] == "") continue
 
-        svg.selectAll(".highlighted").remove()
-
-        svg.append("circle")
-            .attr("class", "highlighted")
-            .attr("cx", function() {
-                var c = Utm2Wgs(X, Y, 31)
-                var p = projection(c)
-                return p[0]
-            })
-            .attr("cy", function(data) {
-                var c = Utm2Wgs(X, Y, 31)
-                var p = projection(c)
-                return p[1]
-            })
-            .attr("r", "14px")
-            .attr("fill", "none")
-            .attr("stroke", "purple")
-            .attr("stroke-width", "5px")
-
-        
-        plotWaterLevelGraph(X)
-    }
-
-    function plotWaterLevelGraph(X) {
-        var waterlevels = data[2].find(item => item.X == X)
-        var waterlevel_data = []
-        for (var i = 2010; i <= 2022; i++) {
-            if (waterlevels[i] != "") {
-                waterlevel_data.push([i, waterlevels[i]])
+                datapoints += 1
+                avg += parseFloat(data[2][i][idx])
             }
+            avgWaterHeights.push(avg / datapoints)
         }
 
-        var w = new WeatherGraph(waterlevel_data, "waterlevels", "blue", "red")
-        
-        w.plotDataGraph()
-    }
+        return avgWaterHeights
+    }();
 })
 
 // Create legend
