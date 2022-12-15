@@ -30,8 +30,8 @@ var mode = Modes.landheight;
 var thsd = d3.format("d"); 
 
 // Scaling is from -40cm NAP to 200cm NAP
-var waterColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
-// var waterColor = d3.scaleLinear().domain([-50 ,0, 50, 200, 4000]).range(["#00008B", "blue", "lightblue", "green", "yellow"])
+var dataColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
+// var dataColor = d3.scaleLinear().domain([-50 ,0, 50, 200, 4000]).range(["#00008B", "blue", "lightblue", "green", "yellow"])
 var densityColor = d3.scaleLinear().domain([50, 100, 500]).range(["lightblue", "blue", "red"])
 
 var width = 900,
@@ -84,13 +84,20 @@ Promise.all([
 
     // Define whether to show water level, land height or the difference
     function getWaterHeight(data, indexYear) {
+        // default scaling for mode 1 and 2
+        dataColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
+
         if (mode == Modes.waterlevel) {
+            createLegend()
             return data[indexYear]
         }
         if (mode == Modes.landheight) {
+            createLegend()
             return data['land_height']
         }
         if (mode == Modes.difference) {
+            dataColor = d3.scaleLinear().domain([-200 ,0, 50]).range(["white", "yellow", "red"])
+            createLegend()
             return data[indexYear] - data['land_height']
         }
     }
@@ -120,7 +127,7 @@ Promise.all([
         svg.selectAll(".waterlevel")
             // Define color based on water level -> NUMERIEKEWAARDE
             .style("fill", function(data) {
-                return waterColor(getWaterHeight(data, '2015'))
+                return dataColor(getWaterHeight(data, '2015'))
             })
             // Show the water level when hovering over a point
             .on("mouseover", function(d) {
@@ -150,7 +157,7 @@ Promise.all([
             svg.selectAll(".waterlevel").transition()
                 .duration(750)
                 .style("fill", function(data) {
-                    return waterColor(getWaterHeight(data, event.target.value))
+                    return dataColor(getWaterHeight(data, event.target.value))
                 })
                 .style("display", function(data) {
                     if (data[event.target.value] == "") {
@@ -169,7 +176,7 @@ Promise.all([
             svg.selectAll(".waterlevel").transition()
                 .duration(750)
                 .style("fill", function(data) {
-                    return waterColor(getWaterHeight(data, dataChronologicalSlider.value))
+                    return dataColor(getWaterHeight(data, dataChronologicalSlider.value))
                 })
                 
         })
@@ -244,11 +251,15 @@ Promise.all([
 
 // Create legend
 function createLegend() {
+    // remove old legend
+    svg.selectAll(".legend").remove()
+
     // create a list of keys
-    var keys = waterColor.domain()
+    var keys = dataColor.domain()
     svg.append("text")
         .attr("x", 100)
         .attr("y", 80)
+        .attr("class", "legend")
         .text("Water height above NAP")
 
     // Add one dot in the legend for each name.
@@ -257,20 +268,21 @@ function createLegend() {
         .data(keys)
         .enter()
         .append("rect")
+        .attr("class", "legend")
         .attr("x", 100)
         .attr("y", function(d,i){ return 100 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
         .attr("width", size)
         .attr("height", size)
-        .style("fill", function(d){ return waterColor(d)})
+        .style("fill", function(d){ return dataColor(d)})
 
     // Add one dot in the legend for each name.
     svg.selectAll("mylabels")
         .data(keys)
         .enter()
         .append("text")
+        .attr("class", "legend")
         .attr("x", 100 + size*1.2)
         .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
-        // .style("fill", function(d){ return waterColor(d)})
         .text(function(d){ return d + " cm"})
         .attr("text-anchor", "left")
         .style("alignment-baseline", "middle")
