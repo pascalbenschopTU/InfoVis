@@ -32,7 +32,7 @@ var thsd = d3.format("d");
 // Scaling is from -40cm NAP to 200cm NAP
 var dataColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
 // var dataColor = d3.scaleLinear().domain([-50 ,0, 50, 200, 4000]).range(["#00008B", "blue", "lightblue", "green", "yellow"])
-var densityColor = d3.scaleLinear().domain([50, 100, 500]).range(["lightblue", "blue", "red"])
+var densityColor = d3.scaleLinear().domain([50, 500, 2000]).range(["lightblue", "blue", "red"])
 
 var width = 900,
     height = 900;
@@ -88,16 +88,16 @@ Promise.all([
         dataColor = d3.scaleLinear().domain([-50 ,0, 200, 4000]).range(["blue", "green", "yellow", "orange"])
 
         if (mode == Modes.waterlevel) {
-            createLegend()
+            createLegend("Water height above NAP")
             return data[indexYear]
         }
         if (mode == Modes.landheight) {
-            createLegend()
+            createLegend("Land height around water height measuring points")
             return data['land_height']
         }
         if (mode == Modes.difference) {
             dataColor = d3.scaleLinear().domain([-200 ,0, 50]).range(["white", "yellow", "red"])
-            createLegend()
+            createLegend("Difference between land height and water height")
             return data[indexYear] - data['land_height']
         }
     }
@@ -180,6 +180,9 @@ Promise.all([
                 })
                 
         })
+
+        svg.selectAll(".waterlevel")
+            .on("click", e => focusOnDataPoint(e))
     }
     
     densityButton.addEventListener("click", _ => {
@@ -201,9 +204,6 @@ Promise.all([
     showNetherlands(data)
     insertDataPoints(data)
     changeDataPoints()
-
-    svg.selectAll(".waterlevel")
-        .on("click", e => focusOnDataPoint(e))
 
     function focusOnDataPoint(event) {
         var X = event.target.__data__.X
@@ -250,7 +250,7 @@ Promise.all([
 })
 
 // Create legend
-function createLegend() {
+function createLegend(text) {
     // remove old legend
     svg.selectAll(".legend").remove()
 
@@ -260,7 +260,7 @@ function createLegend() {
         .attr("x", 100)
         .attr("y", 80)
         .attr("class", "legend")
-        .text("Water height above NAP")
+        .text(text)
 
     // Add one dot in the legend for each name.
     var size = 20
@@ -288,4 +288,4 @@ function createLegend() {
         .style("alignment-baseline", "middle")
 }
 
-createLegend()
+createLegend("Land height around water height measuring points")
