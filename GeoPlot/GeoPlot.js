@@ -266,6 +266,7 @@ function plotWaterLevelGraph(X, waterlevels) {
     w.plotDataGraph()
 }
 
+// Plot the population density
 function showPopulationDensity(densityGeoJSON) {
     var density = topojson.feature(densityGeoJSON, densityGeoJSON.objects.population_density);
 
