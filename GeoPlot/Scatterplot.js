@@ -17,18 +17,20 @@ class WeatherGraph{
         this.yMax = Math.max(...data.map(d => d[1]))
         this.predictionType = 1; // 0 == bad, 1 == normal, 2 == good
         this.root_group = null;
-        this.svg = d3.select(".holder").append("svg").attr("width", graph_width + margin.left + margin.right).attr("height", graph_height + margin.top + margin.bottom).attr("id", this.graph_name);
+        this.svg = d3.select(".focusScatterplot").append("svg").attr("width", graph_width + margin.left + margin.right).attr("height", graph_height + margin.top + margin.bottom).attr("id", this.graph_name);
         this.graph_name = graph_name;
         this.graph_name_xAxis = graph_name + "_x";
         this.graph_name_yAxis = graph_name + "_y";
         this.graph_name_predictionG = graph_name + "_predG";
     }
     plotDataGraph(){
+        //TODO: this is broken
         if (this.root_group != null){
             this.root_group.remove();
         }else{
             this.lRL = this.calculateRegression(this.data)
         }
+        
         this.root_group = this.svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
         // plot normal trendline
         const xCoordinates = [parseFloat(this.data[0][0]), parseFloat(this.data.slice(-1)[0][0])];

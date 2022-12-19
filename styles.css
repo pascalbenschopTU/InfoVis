@@ -81,3 +81,22 @@ strong {
 #pcp-plot text{ 
     font-size: 16px;
 }
+
+.tools {
+    display: flex;
+    flex-direction: column;
+    max-width: 45%;
+}
+
+.tools .row {
+    display: flex;
+}
+
+#display {
+    margin: 0;
+    margin-left: 50px;
+}
+
+label {
+    font-family: 'Montserrat', sans-serif;
+}

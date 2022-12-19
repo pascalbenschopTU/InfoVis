@@ -1,6 +1,7 @@
 const dataChronologicalSlider = document.getElementById('selectYear')
 const densityButton = document.getElementById('toggleDensity')
-const dataSelectionSlider = document.getElementById('selectDataSelection')
+const dataSelectionSelectors = document.getElementsByClassName("selectDataSelection")
+const dataSelectionValue = document.querySelector("input[name='selectDataSelection']:checked").value
 const scenarioSelectionSlider = document.getElementById('selectScenario')
 
 const dataSelection = {
@@ -44,7 +45,7 @@ var projection = d3.geoMercator()
 var path = d3.geoPath()
     .projection(projection);
 
-var svg = d3.select(".holder").append("svg")
+var svg = d3.select("#geo-plot").append("svg")
     .attr("width", width)
     .attr("height", height)
 
@@ -52,9 +53,9 @@ var svg = d3.select(".holder").append("svg")
 // Load all data for the map
 Promise.all([
     d3.json("https://cartomap.github.io/nl/wgs84/provincie_2022.geojson"),
-    d3.json("data/population_density.json"),
-    d3.csv('data/waterlevels.csv'),
-    d3.csv('data/scenarios.csv')
+    d3.json("GeoPlot/data/population_density.json"),
+    d3.csv('GeoPlot/data/waterlevels.csv'),
+    d3.csv('GeoPlot/data/scenarios.csv')
 ]).then(function(data) {
     avgWaterHeights = getAvgWaterHeights(data[2]);
 
@@ -182,15 +183,19 @@ function defineListeners(densityGeoJSON, waterlevels, scenarios) {
         display.innerText = event.target.value;
     })
 
-    dataSelectionSlider.addEventListener('input', event => {
-        mode = parseInt(event.target.value)
-        svg.selectAll(".waterlevel").transition()
-            .duration(750)
-            .style("fill", function(data) {
-                return dataColor(getWaterHeight(data, dataChronologicalSlider.value))
-            })
-            
-    })
+
+    for(var i = 0; i < dataSelectionSelectors.length; i++) {
+        dataSelectionSelectors[i].addEventListener('input', event => {
+            mode = parseInt(event.target.value)
+            svg.selectAll(".waterlevel").transition()
+                .duration(750)
+                .style("fill", function(data) {
+                    return dataColor(getWaterHeight(data, dataChronologicalSlider.value))
+                })
+                
+        })
+    }
+    
 
     scenarioSelectionSlider.addEventListener('input', event => {
         scenario = scenarioSelection[event.target.value]
@@ -313,7 +318,7 @@ function createLegend(text) {
     // create a list of keys
     var keys = dataColor.domain()
     svg.append("text")
-        .attr("x", 100)
+        .attr("x", 50)
         .attr("y", 80)
         .attr("class", "legend")
         .text(text)
@@ -325,7 +330,7 @@ function createLegend(text) {
         .enter()
         .append("rect")
         .attr("class", "legend")
-        .attr("x", 100)
+        .attr("x", 50)
         .attr("y", function(d,i){ return 100 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
         .attr("width", size)
         .attr("height", size)
@@ -337,7 +342,7 @@ function createLegend(text) {
         .enter()
         .append("text")
         .attr("class", "legend")
-        .attr("x", 100 + size*1.2)
+        .attr("x", 50 + size*1.2)
         .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
         .text(function(d){ return d + " cm"})
         .attr("text-anchor", "left")
