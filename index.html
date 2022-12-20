@@ -9,6 +9,10 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+    <script src="scatterPlots/libs/numeric-1.2.6.min.js"></script>
+    <script src="scatterPlots/src/polyfit_min.js"></script>
+    <script src="scatterPlots/src/data_utils.js"></script>
+    <script src="scatterPlots/src/scatter_plot.js"></script>
 </head>
 
 <body>
@@ -57,7 +61,29 @@
 
             </div>
             <div class="graph-container">
-                <p> Some very nice graph here</p>
+                <div>
+                    <label for="predictionTypeSlider">Prediction Type</label>
+                    <input type="range" min="0" max="4" value="2" class="slider" id="predictionTypeSlider" style="background: #d3d3d3" onchange="updateGraphByType(this.value)" oninput="showType(this.value)">
+                    <label id="predictionTypeLabel">Normal</label>
+                </div>
+                <div>
+                    <label for="predictionRangeSlider">Prediction Range</label>
+                    <input type="range" min="0" max="100" value="0" class="slider" id="predictionRangeSlider" style="background: #d3d3d3" onchange="updateGraphByRange(this.value)" oninput="showRange(this.value)">
+                    <label id="predictionRangeLabel">0 Years</label>
+                </div>
+                <div>
+                    <button id="btnReset" onclick="resetGraphs()">Reset</button>
+                </div>
+                <div class="scatterplot">
+
+                </div>
+                <script>
+                    const scatterMargin = { top: 50, bottom: 40, left: 50, right: 50 };
+                    const scatterWidth = 600 - scatterMargin.left - scatterMargin.right;
+                    const scatterHeight = 500 - scatterMargin.top - scatterMargin.bottom;
+        
+                    loadCSVData("/scatterPlots/data/SeaLevelDatasetParsed2.csv", showSeaLevelData)
+                </script>
             </div>
         </div>
         <svg class="svg-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
@@ -104,7 +130,7 @@
                     <br>
                     <input type="range" id="selectScenario" min="0" max="4" value="2">
                 </div>
-                <div class="focusScatterplot">
+                <div class="focusscatterplot">
 
                 </div>
             </div>
@@ -114,7 +140,6 @@
 </body>
 <script src="scripts/pcp.js"></script>
 <script src="GeoPlot/GeoPlot.js"></script>
-<script src="GeoPlot/Scatterplot.js"></script>
 <script src="GeoPlot/Coordinates.js"></script>
 
 </html>
