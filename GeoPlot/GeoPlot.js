@@ -157,7 +157,7 @@ function changeDataPoints() {
                 .attr("id", "tooltip")
                 .attr("x", xPosition)
                 .attr("y", yPosition)
-                .text("Water level above NAP: " + d.target.__data__[dataChronologicalSlider.value])
+                .text("Water level above NAP: " + Math.round(d.target.__data__[dataChronologicalSlider.value] * 100) / 10 + " mm")
                 .style("fill", "white")
                 .style("text-shadow", "0.07em 0 black, 0 0.07em black, -0.07em 0 black, 0 -0.07em black")
             d3.select(this)
