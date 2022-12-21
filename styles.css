@@ -56,6 +56,16 @@ strong {
 .text-container-full {
     padding: 60px;
 }
+.slider-header{
+    font-size: xx-large;
+    font-weight: bold;
+}
+.slider{
+    width: 300px;
+}
+.parallel-div{
+    display: flex;
+}
 
 .container-double {
     display: flex;
