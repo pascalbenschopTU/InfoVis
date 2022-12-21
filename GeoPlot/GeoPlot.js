@@ -266,13 +266,9 @@ function plotWaterLevelGraph(X, waterlevels) {
         }
     }
 
-    console.log(waterlevel_data);
+    height = parseFloat(waterlevelsX['land_height']);
     d3.select(".focusscatterplot>svg").remove();
-    showSeaLevelData(waterlevel_data, 160, svgName=".focusscatterplot", parse=false);
-
-    // var w = new WeatherGraph(waterlevel_data, "waterlevels", "blue", "red")
-    
-    // w.plotDataGraph()
+    showSeaLevelData(waterlevel_data, height, svgName=".focusscatterplot", parse=false);
 }
 
 // Plot the population density

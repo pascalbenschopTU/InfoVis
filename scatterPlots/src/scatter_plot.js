@@ -194,8 +194,6 @@ class GraphWrapper{
         const max_year = data.slice(-1)[0][0]
         const min_y = Math.min(...data.map(d => d[1]))
         const max_y = Math.max(...data.map(d => d[1]))
-        console.log(min_y)
-        console.log(max_y)
         var xScale = this.xScale
         var yScale = this.yScale
         this.root_group.on("mousemove", function(mouse) {
@@ -240,7 +238,6 @@ function showSeaLevelData(data, thresholdLine=null, svgName=".scatterplot", pars
         dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)])
     }
    
-    console.log(dataSealevel)
     grapSeaLevel = new GraphWrapper(dataSealevel, "sealevel_graph", "blue", "green", thresholdLine, svgName)
     grapSeaLevel.plotDataGraph()
 }
