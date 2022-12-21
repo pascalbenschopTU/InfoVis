@@ -33,9 +33,11 @@ class GraphWrapper{
         let polyFit = calculateRegression(this.data);
         let polyFitPred = null;
         let predP = null;
+
         if (this.root_group != null){
             this.root_group.remove();
         }
+
         this.root_group = this.svg.append("g").attr("transform", `translate(${scatterMargin.left}, ${scatterMargin.top})`);
 
         // plot normal trendline
@@ -66,6 +68,7 @@ class GraphWrapper{
         this.plotDataGraph()
     }
     updateGraphByType(type){
+        console.log('aaaa')
         this.predictionType = type;
 
         this.plotDataGraph()
@@ -281,6 +284,7 @@ function showType(data){
 }
 function updateGraphByType(data){
     // change the behaviour of the trendline extension based on data
+    console.log("here");
     if (graphTemp != null){
         graphTemp.updateGraphByType(parseInt(data))
     }

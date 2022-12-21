@@ -3,6 +3,7 @@ const densityButton = document.getElementById('toggleDensity')
 const dataSelectionSelectors = document.getElementsByClassName("selectDataSelection")
 const dataSelectionValue = document.querySelector("input[name='selectDataSelection']:checked").value
 const scenarioSelectionSlider = document.getElementById('selectScenario')
+let focussedX = null
 
 const dataSelection = {
 	waterlevel: 0,
@@ -215,6 +216,11 @@ function defineListeners(densityGeoJSON, waterlevels, scenarios) {
                 waterlevels[i][j] =  (parseFloat(avgWaterHeights[i]) + accumulated_value).toString()
             }
         }
+        
+        if(focusScatterPlot != null) {
+            plotWaterLevelGraph(focussedX, waterlevels)
+        }
+
         document.getElementById('selectScenarionTypeLabel').innerHTML = scenarioSelectionText[event.target.value]
         changeDataPoints()
     })
@@ -279,6 +285,7 @@ function plotWaterLevelGraph(X, waterlevels) {
     height = parseFloat(waterlevelsX['land_height']);
     d3.select(".focusscatterplot>svg").remove();
     focusScatterPlot = showSeaLevelData(waterlevel_data, height, svgName=".focusscatterplot", parse=false, keep_ref=false);
+    focussedX = X
 }
 
 // Plot the population density
