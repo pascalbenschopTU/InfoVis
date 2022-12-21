@@ -10,7 +10,7 @@ let graphSeaLevel = null;
 let slopeValues = [-0.0075, -0.005, 0, 0.02, 0.05]
 
 class GraphWrapper{
-    constructor(data, color_points, color_trendline, thresholdLine, svgName = ".scatterplot") {
+    constructor(data, color_points, color_trendline, thresholdHeight, svgName = ".scatterplot") {
         this.data = data;
         this.color_points = color_points;
         this.color_trendline = color_trendline;
@@ -27,7 +27,7 @@ class GraphWrapper{
         this.predictionType = 2;
         this.root_group = null;
         this.svg = d3.select(this.svgName).append("svg").attr("width", scatterWidth + scatterMargin.left + scatterMargin.right).attr("height", scatterHeight + scatterMargin.top + scatterMargin.bottom).attr("id", this.graph_name);
-        this.thresholdLine = thresholdLine;
+        this.thresholdHeight = thresholdHeight;
     }
     plotDataGraph(){
         let polyFit = calculateRegression(this.data);
@@ -58,11 +58,50 @@ class GraphWrapper{
         // if (polyFitPred != null){
         //     this.plotLine(predP, this.color_trendline);
         // }
-        if(this.thresholdLine) {
-            this.plotDataThresholdLine(this.thresholdLine)
+        if(this.thresholdHeight) {
+            this.plotDataThresholdLine(this.thresholdHeight)
         }
         this.addMouseHover(plotData)
+        this.createLegend("Stuff")
     }
+    createLegend(text) {
+        // remove old legend
+        this.svg.selectAll(".legend").remove()
+        var dataColor = [["Dataset points","blue"], ["Trendline","green"]]
+
+        // create a list of keys
+        svg.append("text")
+            .attr("x", 50)
+            .attr("y", 80)
+            .attr("class", "legend")
+            .text(text)
+
+        // Add one dot in the legend for each name.
+        var size = 20
+        this.svg.selectAll("mydots")
+            .data(dataColor)
+            .enter()
+            .append("rect")
+            .attr("class", "legend")
+            .attr("x", 150)
+            .attr("y", function(d,i){ return 100 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("width", size)
+            .attr("height", size)
+            .style("fill", function(d){ return d[1]})
+
+        // Add one dot in the legend for each name.
+        this.svg.selectAll("mylabels")
+            .data(dataColor)
+            .enter()
+            .append("text")
+            .attr("class", "legend")
+            .attr("x", 150 + size*1.2)
+            .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
+            .text(function(d){ return d[0]})
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
+    }
+
     updateGraphByRange(range){
         this.xOffset = range;
         this.plotDataGraph()
@@ -137,9 +176,18 @@ class GraphWrapper{
     calculateAxisScaling(data){
         // scale data to axis
         this.xScale = d3.scaleLinear().domain([d3.min(data, (d) => d[0]), d3.max(data, (d) => d[0])]).range([0, scatterWidth]);
-        const maxY = d3.max(data, (d) => parseFloat(d[1]))
-        this.yScale = d3.scaleLinear().domain([d3.min(data, (d) => parseFloat(d[1])) - maxY * 0.1, maxY + maxY * 0.1]).range([scatterHeight, 0]);
-        this.xAxis = d3.axisBottom().scale(this.xScale);
+        let maxY;
+        let minY;
+        console.log(this.thresholdHeight)
+        if (this.thresholdHeight){
+            maxY = Math.max(d3.max(data, (d) => parseFloat(d[1])), this.thresholdHeight)
+            minY = Math.min(d3.min(data, (d) => parseFloat(d[1])), this.thresholdHeight)
+        }else{
+            maxY = d3.max(data, (d) => parseFloat(d[1]))
+            minY = d3.min(data, (d) => parseFloat(d[1]))
+        }
+        this.yScale = d3.scaleLinear().domain([minY - maxY * 0.1, maxY + maxY * 0.1]).range([scatterHeight, 0]);
+        this.xAxis = d3.axisBottom().scale(this.xScale).tickFormat(d3.format("d"));
         this.yAxis = d3.axisLeft().scale(this.yScale);
     }
     plotDataPoints(){
@@ -235,17 +283,17 @@ function showWeatherData(data){
     graphRain.plotDataGraph()
 }
 // load and show the sealevel dataset
-function showSeaLevelData(data, thresholdLine=null, svgName=".scatterplot", parse=true, keep_ref=true){
+function showSeaLevelData(data, thresholdHeight=null, svgName=".scatterplot", parse=true, keep_ref=true){
     let dataSealevel = data
 
     if(parse) {
         dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)])
     }
    if (keep_ref){
-       graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdLine, svgName)
+       graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdHeight, svgName)
        graphSeaLevel.plotDataGraph()
    }else{
-       const graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdLine, svgName)
+       const graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdHeight, svgName)
        graphSeaLevel.plotDataGraph()
        return graphSeaLevel
    }
