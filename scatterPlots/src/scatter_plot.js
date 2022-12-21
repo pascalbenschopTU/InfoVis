@@ -134,7 +134,7 @@ class GraphWrapper{
     calculateAxisScaling(data){
         // scale data to axis
         this.xScale = d3.scaleLinear().domain([d3.min(data, (d) => d[0]), d3.max(data, (d) => d[0])]).range([0, scatterWidth]);
-        this.yScale = d3.scaleLinear().domain([0, d3.max(data, (d) => parseFloat(d[1]))]).range([scatterHeight, 0]);
+        this.yScale = d3.scaleLinear().domain([d3.min(data, (d) => parseFloat(d[1])), d3.max(data, (d) => parseFloat(d[1]))]).range([scatterHeight, 0]);
         this.xAxis = d3.axisBottom().scale(this.xScale);
         this.yAxis = d3.axisLeft().scale(this.yScale);
     }
