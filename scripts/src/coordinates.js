@@ -1,52 +1,7 @@
-function rijksdriehoek(lambda, sigma) {
-  // Coordinates of origin (Amersfoort)
-  var x0 = 155000.0;
-  var y0 = 463000.0;
-  var sigma0 = 52.15517440;
-  var lambda0 =  5.38720621;
-  var R = [
-    {"p":0, "q":1, "R": 190094.945},
-    {"p":1, "q":1, "R": -11832.228},
-    {"p":2, "q":1, "R": -114.221},
-    {"p":0, "q":3, "R": -32.391},
-    {"p":1, "q":0, "R": -0.705},
-    {"p":3, "q":1, "R": -2.340},
-    {"p":1, "q":3, "R": -0.608},
-    {"p":0, "q":2, "R": -0.008},
-    {"p":2, "q":3, "R": 0.148}]
-  var S = [
-    {"p":1, "q":0, "S": 309056.544},
-    {"p":0, "q":2, "S": 3638.893},
-    {"p":2, "q":0, "S": 73.077},
-    {"p":1, "q":2, "S": -157.984},
-    {"p":3, "q":0, "S": 59.788},
-    {"p":0, "q":1, "S": 0.433},
-    {"p":2, "q":2, "S": -6.439},
-    {"p":1, "q":1, "S": -0.032},
-    {"p":0, "q":4, "S": 0.092},
-    {"p":1, "q":4, "S": -0.054}]
-  var dsigma = 0.36*(sigma - sigma0);
-  var dlambda = 0.36*(lambda - lambda0);
-  var x = x0;
-  for (var i = 0; i < R.length; ++i) {
-    var p = R[i].p;
-    var q = R[i].q;
-    var r = R[i].R;
-    x += r*Math.pow(dsigma, p)*Math.pow(dlambda, q);
-  }
-  var y = y0;
-  for (var i = 0; i < S.length; ++i) {
-    var p = S[i].p;
-    var q = S[i].q;
-    var s = S[i].S;
-    y += s*Math.pow(dsigma, p)*Math.pow(dlambda, q);
-  }
-  return [x, y];
-}
-
 // Convert UTM coordinates to Wgs
+// Source: https://gis.stackexchange.com/questions/62281/converting-utm-decimal-degrees-with-javascript-or-using-a-web-service
 // Zone for Netherlands is 31
-function Utm2Wgs( X,Y,zone) {
+function Utm2Wgs(X,Y,zone) {
   X = X - 500000;
   var sa = 6378137.000000;
   var sb = 6356752.314245;

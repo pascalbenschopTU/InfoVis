@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 
-# Compare the values between two years
+# Combine all csv's together
 def makeCSV(filenames : list):
     assert len(filenames) > 3
 

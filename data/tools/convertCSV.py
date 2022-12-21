@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 
+# Simplify csv from Rijkswaterstaat
 def makeCSV(filename):
 
     def getNumber(string):

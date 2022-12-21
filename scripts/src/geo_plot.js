@@ -307,6 +307,7 @@ function showPopulationDensity(densityGeoJSON) {
 // Get the water height avg over the years in the data from waterlevels.csv
 function getAvgWaterHeights(waterlevels) {
     var avgWaterHeights = [];
+    // Columns 2010 until 2022 of the dataset
     selectedColumns = waterlevels.columns.slice(5, 18);
 
     for (var i = 0; i < waterlevels.length; i++) {
@@ -329,6 +330,7 @@ function getAvgWaterHeights(waterlevels) {
 
 
 // Create legend
+// Source: https://d3-graph-gallery.com/graph/custom_legend.html 
 function createLegend(text) {
     // remove old legend
     svg.selectAll(".legend").remove();
