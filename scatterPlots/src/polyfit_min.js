@@ -5,6 +5,7 @@ function generateFit(data, modelDegree=2) {
 
 function backslash(A, b) {
     var gram = numeric.dot(numeric.transpose(A), A);
+    console.log(gram)
     var pinvA = numeric.dot(numeric.inv(gram), numeric.transpose(A));
     return numeric.dot(pinvA, b);
   }

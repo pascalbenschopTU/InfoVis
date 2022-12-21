@@ -8,6 +8,7 @@ let graphRain = null;
 let graphTemp = null;
 let grapSeaLevel = null;
 let slopeValues = [-0.0075, -0.005, 0, 0.02, 0.05]
+let exportPredictions = false;
 
 class GraphWrapper{
     constructor(data, graph_name, color_points, color_trendline) {
@@ -87,7 +88,7 @@ class GraphWrapper{
             return [x, polyfitData[1][y]];
         });
         const slope = dataZip.slice(-1)[0][1] - dataZip.slice(-2)[0][1]
-        const points = dataZip.slice(-10);
+        const points = dataZip.slice(-1);
         let slopeFunction = null;
         switch (this.predictionType){
             case 0:
@@ -123,6 +124,33 @@ class GraphWrapper{
             let year = parseInt(points.slice(-1)[0][0]) + 1
             let yVal = points.slice(-1)[0][1] + slopeFunction(i)
             points.push([year, yVal])
+        }
+        if (exportPredictions){
+            var lastP = null;
+            var differences = []
+            for(var i = 0; i < points.length; i++){
+                var p = points[i]
+                if (lastP == null){
+                    lastP = p;
+                    continue;
+                }
+                differences.push([`${lastP[0]}-${p[0]}`, p[1] - lastP[1]])
+                lastP = p;
+            }
+            let csvContent = "Time Span,Difference\r\n";
+
+            differences.forEach(function(rowArray) {
+                let row = rowArray.join(",");
+                csvContent += row + "\r\n";
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' })
+            const objUrl = URL.createObjectURL(blob)
+            const link = document.getElementById('btnDownload')
+            link.setAttribute('href', objUrl)
+            link.setAttribute('download', 'File.csv')
+            link.textContent = `Click to Download ${document.getElementById("predictionTypeLabel").innerText}:${predictionRange}`
+
+            document.querySelector('body').append(link)
         }
 
         return points
@@ -231,6 +259,7 @@ function showWeatherData(data){
 // load and show the sealevel dataset
 function showSeaLevelData(data){
     const dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)])
+    console.log(dataSealevel)
     grapSeaLevel = new GraphWrapper(dataSealevel, "sealevel_graph", "blue", "green")
     grapSeaLevel.plotDataGraph()
 }
@@ -242,7 +271,9 @@ function showRange(data){
     predictionRange = parseInt(data)
     document.getElementById("predictionRangeLabel").innerText = predictionRange + " Years"
 }
-
+function exportPrediction(cb){
+    exportPredictions = cb.checked;
+}
 function showType(data){
     predictionType = parseInt(data)
     let output = "";

@@ -63,6 +63,15 @@
             <div>
                 <button id="btnReset" onclick="resetGraphs()">Reset</button>
             </div>
+            <div>
+                <label class="switch">
+                    <input type="checkbox" id="btnExportPredictions" onclick="exportPrediction(this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div>
+                    <a id="btnDownload"></a>
+            </div>
         </div>
         <script>
             const margin = { top: 50, bottom: 40, left: 50, right: 50 };
