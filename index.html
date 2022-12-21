@@ -1,1 +1,173 @@
-Hello World
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+    <script src="scatterPlots/libs/numeric-1.2.6.min.js"></script>
+    <script src="scatterPlots/src/polyfit_min.js"></script>
+    <script src="scatterPlots/src/data_utils.js"></script>
+    <script src="scatterPlots/src/scatter_plot.js"></script>
+</head>
+
+<body>
+
+    <div class="container center">
+        <h1>Will the Netherlands drown?</h1>
+        <svg class="svg-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#a2d9ff" fill-opacity="1"
+                d="M0,32L40,32C80,32,160,32,240,69.3C320,107,400,181,480,224C560,267,640,277,720,240C800,203,880,117,960,117.3C1040,117,1120,203,1200,218.7C1280,235,1360,181,1400,154.7L1440,128L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z">
+            </path>
+        </svg>
+    </div>
+    <div class="container">
+        <div class="container-double">
+            <div class="text-container">
+
+                <p class="white">In the last <strong>11 years</strong> the average global sea level has risen from
+                    <strong> 54.55mm </strong>
+                </p>
+                <p class="white">People claim that the amount of <strong>CO2</strong> and rise of <strong>global
+                        temperature</strong> are causes for the rising of the sea level</p>
+                <p class="white">The graph on the left show the possibility of correlation between these matters</p>
+                <p class="white" id="#pcp-data-text">If you hover over the graph you can see what the values where in
+                    that year</p>
+
+                <a href='#rise-content' class="white">Let's take a look a better look into the rising of the sea
+                    level</a>
+
+
+            </div>
+            <div class="graph-container">
+                <div id="pcp-plot">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="rise-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#a2d9ff" fill-opacity="1"
+                d="M0,288L60,288C120,288,240,288,360,245.3C480,203,600,117,720,112C840,107,960,181,1080,218.7C1200,256,1320,256,1380,256L1440,256L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z">
+            </path>
+        </svg>
+        <div class="container-double" id="rise-content">
+            <div class="text-container">
+                <p>Here we can see the trend of the <strong>global seal level</strong> from <strong>1881 to 2020</strong>. Compared to 1881 the global sea level has risen about <strong>210 to 240 mm</strong> to 2020.</p>
+                <p>Additionally the graph can show <strong>predictions for the global sea level until 2120</strong> based on different scenarios. These scenarios depend on how much <strong>greenhouse gas emission</strong> will be produced by humanity.</p>
+                <div class="parallel-div">
+                    <div>
+                        <div>
+                            <label class="slider-header" for="predictionTypeSlider">Prediction Type</label>
+                        </div>
+                        <div>
+                            <input type="range" min="0" max="4" value="2" class="slider" id="predictionTypeSlider"
+                                   style="background: #d3d3d3" onchange="updateGraphByType(this.value)"
+                                   oninput="showType(this.value)">
+                            <label id="predictionTypeLabel">Normal</label>
+                        </div>
+                    </div>
+                    <div style="margin-left: auto; margin-right: 0">
+                        <div>
+                            <label class="slider-header" for="predictionRangeSlider">Prediction Range</label>
+                        </div>
+                        <div>
+                            <input type="range" min="0" max="100" value="0" class="slider" id="predictionRangeSlider"
+                                   style="background: #d3d3d3" onchange="updateGraphByRange(this.value)"
+                                   oninput="showRange(this.value)">
+                            <label id="predictionRangeLabel">0 Years</label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button id="btnReset" onclick="resetGraphs()">Reset</button>
+                </div>
+            </div>
+            <div class="graph-container">
+                <div class="scatterplot">
+
+                </div>
+                <script>
+                    const scatterMargin = { top: 50, bottom: 40, left: 50, right: 50 };
+                    const scatterWidth = 800 - scatterMargin.left - scatterMargin.right;
+                    const scatterHeight = 700 - scatterMargin.top - scatterMargin.bottom;
+
+                    loadCSVData("/scatterPlots/data/SeaLevelDatasetParsed2.csv", showSeaLevelData)
+                </script>
+            </div>
+        </div>
+        <svg class="svg-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#a2d9ff" fill-opacity="1"
+                d="M0,32L40,32C80,32,160,32,240,69.3C320,107,400,181,480,224C560,267,640,277,720,240C800,203,880,117,960,117.3C1040,117,1120,203,1200,218.7C1280,235,1360,181,1400,154.7L1440,128L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z">
+            </path>
+        </svg>
+    </div>
+
+    <div class="container">
+        <div class="text-container-full">
+            <p class="white"> Knowing how the sea level rises, let us look at which areas are affected over the coming years.</p>
+
+            <p class="white">The map shows colored points that display the <strong>difference</strong> between water height and land height.</p>    
+                
+            <p class="white">When the water height exceeds the land height the area around the point is at risk of <strong>flooding</strong></p>    
+        </div>
+        <div class="container-double">
+            <div class="graph-container">
+                <div id="geo-plot">
+                    <p id="display">2015</p>
+                </div>
+            </div>
+            <div class="text-container">
+                <div class="tools">
+                    <label for="volume" class="slider-header">Slide to select year</label>
+                    <input type="range" id="selectYear" name="volume" min="2010" max="2119" value="2015">
+                    <br>
+                    <div class="row">
+                        <input type="checkbox" value="off" id="toggleDensity">
+                        <label>toggleDensity</label>
+
+                    </div>
+                    <br>
+                    <div>
+                        <input type="radio" value="0" id="selectDataSelection1" name="selectDataSelection"
+                            class="selectDataSelection">
+                        <label for="selectDataSelection1">Water height above NAP</label>
+                    </div>
+                    <div>
+                        <input type="radio" value="1" id="selectDataSelection2" name="selectDataSelection"
+                            class="selectDataSelection">
+                        <label for="selectDataSelection2">Land height</label>
+                    </div>
+                    <div>
+                        <input type="radio" value="2" id="selectDataSelection3" name="selectDataSelection"
+                            class="selectDataSelection" checked>
+                        <label for="selectDataSelection3">Difference between land height and water height</label>
+                    </div>
+
+                    <br>
+                    <label for="selectScenario" class="slider-header">Prediction Type</label>
+                    <div class="predictionslider">
+                        <input type="range" min="0" max="4" value="2" class="slider" id="selectScenario" style="background: #d3d3d3">
+                    <label id="selectScenarionTypeLabel">Normal</label>
+                    </div>
+                    
+                    <!-- <input type="range" id="selectScenario" min="0" max="4" value="2"> -->
+                </div>
+                <div class="focusscatterplot">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="scripts/pcp.js"></script>
+<script src="GeoPlot/GeoPlot.js"></script>
+<script src="GeoPlot/Coordinates.js"></script>
+
+</html>

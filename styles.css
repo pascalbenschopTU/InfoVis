@@ -1,0 +1,158 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 70px;
+    color: #000B76;
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 180px;
+}
+
+p,
+a {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 40px;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p.white,
+a.white {
+    color: white;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#rise-container {
+    height: 190vh;
+}
+
+.graph-container {
+    width: 50%;
+    padding: 30px;
+}
+
+strong {
+    color: #000B76;
+}
+
+.text-container {
+    width: 50%;
+    padding: 20px;
+}
+
+.text-container-full {
+    padding: 60px;
+}
+.slider-header{
+    font-size: xx-large;
+    font-weight: bold;
+    color: #000B76;
+    margin-bottom: 5px;;
+}
+.slider{
+    width: 300px;
+}
+.parallel-div{
+    display: flex;
+}
+
+.container-double {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px;
+    background-color: inherit;
+}
+
+.container.center {
+    align-items: center;
+}
+
+.svg-bottom {
+    margin-top: auto;
+}
+
+.svg-top {
+    margin-bottom: auto;
+}
+
+.container:nth-child(odd) {
+    background-color: white;
+}
+
+.container:nth-child(even) {
+    background-color: #a2d9ff;
+}
+
+#pcp-plot text {
+    font-size: 16px;
+}
+
+.tools {
+    display: flex;
+    flex-direction: column;
+    max-width: 60%;
+}
+
+#display {
+    margin: 0;
+    margin-left: 15px;
+}
+
+label,
+text {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.predictionslider {
+    display: flex;
+}
+
+.predictionslider input {
+    width: 60%;
+}
+
+#pcp-plot text {
+    cursor: grab;
+}
+
+button {
+    background-color: #000B76;
+    border: none;
+    color: white;
+    padding: 10px 32px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 2px;
+    cursor: pointer;
+
+}
+
+button:hover {
+    background-color: #1d277a;
+}
+
+label {
+    font-size: 18px;
+}
+
+.tools input[type="radio"], .tools input[type="checkbox"]{
+    transform: scale(1.5);
+    margin-right: 10px;
+    
+}
