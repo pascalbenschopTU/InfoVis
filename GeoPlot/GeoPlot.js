@@ -278,11 +278,11 @@ function plotWaterLevelGraph(X, waterlevels) {
     var waterlevel_data = []
     for (var i = 2010; i <= 2119; i++) {
         if (waterlevelsX[i] != "") {
-            waterlevel_data.push([i, parseFloat(waterlevelsX[i])])
+            waterlevel_data.push([i, parseFloat(waterlevelsX[i]) * 10])
         }
     }
 
-    height = parseFloat(waterlevelsX['land_height']);
+    height = parseFloat(waterlevelsX['land_height']) * 10;
     d3.select(".focusscatterplot>svg").remove();
     focusScatterPlot = showSeaLevelData(waterlevel_data, height, svgName=".focusscatterplot", parse=false, keep_ref=false);
     focussedX = X
