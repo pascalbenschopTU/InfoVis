@@ -233,8 +233,14 @@ function showWeatherData(data){
     graphRain.plotDataGraph()
 }
 // load and show the sealevel dataset
-function showSeaLevelData(data, thresholdLine=null, svgName=".scatterplot"){
-    const dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)])
+function showSeaLevelData(data, thresholdLine=null, svgName=".scatterplot", parse=true){
+    let dataSealevel = data
+
+    if(parse) {
+        dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)])
+    }
+   
+    console.log(dataSealevel)
     grapSeaLevel = new GraphWrapper(dataSealevel, "sealevel_graph", "blue", "green", thresholdLine, svgName)
     grapSeaLevel.plotDataGraph()
 }

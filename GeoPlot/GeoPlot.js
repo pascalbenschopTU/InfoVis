@@ -262,12 +262,13 @@ function plotWaterLevelGraph(X, waterlevels) {
     var waterlevel_data = []
     for (var i = 2010; i <= 2119; i++) {
         if (waterlevelsX[i] != "") {
-            waterlevel_data.push([i, waterlevelsX[i]])
+            waterlevel_data.push([i, parseFloat(waterlevelsX[i])])
         }
     }
 
+    console.log(waterlevel_data);
     d3.select(".focusscatterplot>svg").remove();
-    showSeaLevelData(waterlevel_data, 160, svgName=".focusscatterplot");
+    showSeaLevelData(waterlevel_data, 160, svgName=".focusscatterplot", parse=false);
 
     // var w = new WeatherGraph(waterlevel_data, "waterlevels", "blue", "red")
     
