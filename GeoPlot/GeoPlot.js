@@ -49,6 +49,7 @@ var svg = d3.select("#geo-plot").append("svg")
     .attr("width", width)
     .attr("height", height)
 
+var focusScatterPlot = null;
 
 // Load all data for the map
 Promise.all([
@@ -268,7 +269,7 @@ function plotWaterLevelGraph(X, waterlevels) {
 
     height = parseFloat(waterlevelsX['land_height']);
     d3.select(".focusscatterplot>svg").remove();
-    showSeaLevelData(waterlevel_data, height, svgName=".focusscatterplot", parse=false);
+    focusScatterPlot = showSeaLevelData(waterlevel_data, height, svgName=".focusscatterplot", parse=false, keep_ref=false);
 }
 
 // Plot the population density
