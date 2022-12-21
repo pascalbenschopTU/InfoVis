@@ -118,7 +118,7 @@ d3.csv("../data/pcpDataSet.csv").then(function (data) {
       .data(dimensions).enter().append("g")
       .attr("transform", function (d) { return "translate(" + x(d) + ")"; })
       .attr("class", "axis")
-      .each(function (d) { d3.select(this).call(d3.axisLeft().ticks(5).scale(y[d])); })
+      .each(function (d) { d3.select(this).call(d3.axisLeft().ticks(5).tickFormat(d3.format("d")).scale(y[d])); })
       .append("text")
       .style("text-anchor", "middle")
       .attr("y", -9)

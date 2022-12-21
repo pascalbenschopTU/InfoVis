@@ -9,7 +9,9 @@ h1 {
     font-family: 'Montserrat', sans-serif;
     margin-top: 180px;
 }
-p, a {
+
+p,
+a {
     font-family: 'Montserrat', sans-serif;
     font-size: 40px;
 }
@@ -22,7 +24,8 @@ a:hover {
     text-decoration: underline;
 }
 
-p.white, a.white {
+p.white,
+a.white {
     color: white;
 }
 
@@ -50,8 +53,8 @@ strong {
     padding: 20px;
 }
 
-.text-container {
-    padding: 20px;
+.text-container-full {
+    padding: 60px;
 }
 
 .container-double {
@@ -72,6 +75,7 @@ strong {
 .svg-top {
     margin-bottom: auto;
 }
+
 .container:nth-child(odd) {
     background-color: white;
 }
@@ -80,7 +84,7 @@ strong {
     background-color: #a2d9ff;
 }
 
-#pcp-plot text{ 
+#pcp-plot text {
     font-size: 16px;
 }
 
@@ -99,7 +103,8 @@ strong {
     margin-left: 15px;
 }
 
-label, text {
+label,
+text {
     font-family: 'Montserrat', sans-serif;
 }
 
@@ -113,4 +118,23 @@ label, text {
 
 #pcp-plot text {
     cursor: grab;
+}
+
+button {
+    background-color: #000B76;
+    border: none;
+    color: white;
+    padding: 10px 32px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 2px;
+    cursor: pointer;
+
+}
+
+button:hover {
+    background-color: #1d277a;
 }
