@@ -69,12 +69,9 @@ class GraphWrapper{
         this.svg.selectAll(".legend").remove()
         var dataColor = [["Dataset points","blue"], ["Trendline","green"]]
 
-        // create a list of keys
-        svg.append("text")
-            .attr("x", 50)
-            .attr("y", 80)
-            .attr("class", "legend")
-            .text(text)
+        if (this.thresholdHeight){
+            dataColor.push(["Land height", "red"])
+        }
 
         // Add one dot in the legend for each name.
         var size = 20
@@ -83,8 +80,8 @@ class GraphWrapper{
             .enter()
             .append("rect")
             .attr("class", "legend")
-            .attr("x", 150)
-            .attr("y", function(d,i){ return 100 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("x", 100)
+            .attr("y", function(d,i){ return 50 + i*(size+5)})
             .attr("width", size)
             .attr("height", size)
             .style("fill", function(d){ return d[1]})
@@ -95,8 +92,8 @@ class GraphWrapper{
             .enter()
             .append("text")
             .attr("class", "legend")
-            .attr("x", 150 + size*1.2)
-            .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("x", 100 + size*1.2)
+            .attr("y", function(d,i){ return 50 + i*(size+5) + (size/2)})
             .text(function(d){ return d[0]})
             .attr("text-anchor", "left")
             .style("alignment-baseline", "middle")
