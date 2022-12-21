@@ -59,6 +59,8 @@ strong {
 .slider-header{
     font-size: xx-large;
     font-weight: bold;
+    color: #000B76;
+    margin-bottom: 5px;;
 }
 .slider{
     width: 300px;
@@ -101,11 +103,7 @@ strong {
 .tools {
     display: flex;
     flex-direction: column;
-    max-width: 45%;
-}
-
-.tools .row {
-    display: flex;
+    max-width: 60%;
 }
 
 #display {
@@ -123,7 +121,7 @@ text {
 }
 
 .predictionslider input {
-    width: 52%;
+    width: 60%;
 }
 
 #pcp-plot text {
@@ -147,4 +145,14 @@ button {
 
 button:hover {
     background-color: #1d277a;
+}
+
+label {
+    font-size: 18px;
+}
+
+.tools input[type="radio"], .tools input[type="checkbox"]{
+    transform: scale(1.5);
+    margin-right: 10px;
+    
 }
