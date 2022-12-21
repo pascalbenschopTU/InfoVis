@@ -6,15 +6,19 @@ let predictionRange = 0.0;
 let predictionType = 2;
 let graphRain = null;
 let graphTemp = null;
-let grapSeaLevel = null;
+let graphSeaLevel = null;
 let slopeValues = [-0.0075, -0.005, 0, 0.02, 0.05]
 
 class GraphWrapper{
-    constructor(data, graph_name, color_points, color_trendline, thresholdLine, svgName = ".scatterplot") {
+    constructor(data, color_points, color_trendline, thresholdLine, svgName = ".scatterplot") {
         this.data = data;
         this.color_points = color_points;
         this.color_trendline = color_trendline;
         this.svgName = svgName
+        this.graph_name = svgName + "_graph";
+        this.graph_name_xAxis = this.graph_name + "_x";
+        this.graph_name_yAxis = this.graph_name + "_y";
+        this.graph_name_predictionG = this.graph_name + "_predG";
         this.xScale = null;
         this.yScale = null;
         this.xAxis = null;
@@ -23,10 +27,6 @@ class GraphWrapper{
         this.predictionType = 2;
         this.root_group = null;
         this.svg = d3.select(this.svgName).append("svg").attr("width", scatterWidth + scatterMargin.left + scatterMargin.right).attr("height", scatterHeight + scatterMargin.top + scatterMargin.bottom).attr("id", this.graph_name);
-        this.graph_name = graph_name;
-        this.graph_name_xAxis = graph_name + "_x";
-        this.graph_name_yAxis = graph_name + "_y";
-        this.graph_name_predictionG = graph_name + "_predG";
         this.thresholdLine = thresholdLine;
     }
     plotDataGraph(){
@@ -76,7 +76,7 @@ class GraphWrapper{
         }
         this.xOffset = 0
         this.svg = d3
-            .select(".scatterplot")
+            .select(this.svgName)
             .append("svg")
             .attr("width", scatterWidth + scatterMargin.left + scatterMargin.right)
             .attr("height", scatterHeight + scatterMargin.top + scatterMargin.bottom)
@@ -232,15 +232,20 @@ function showWeatherData(data){
     graphRain.plotDataGraph()
 }
 // load and show the sealevel dataset
-function showSeaLevelData(data, thresholdLine=null, svgName=".scatterplot", parse=true){
+function showSeaLevelData(data, thresholdLine=null, svgName=".scatterplot", parse=true, keep_ref=true){
     let dataSealevel = data
 
     if(parse) {
         dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)])
     }
-   
-    grapSeaLevel = new GraphWrapper(dataSealevel, "sealevel_graph", "blue", "green", thresholdLine, svgName)
-    grapSeaLevel.plotDataGraph()
+   if (keep_ref){
+       graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdLine, svgName)
+       graphSeaLevel.plotDataGraph()
+   }else{
+       const graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdLine, svgName)
+       graphSeaLevel.plotDataGraph()
+       return graphSeaLevel
+   }
 }
 
 // ==============================================================
@@ -282,8 +287,8 @@ function updateGraphByType(data){
     if (graphRain != null){
         graphRain.updateGraphByType(parseInt(data))
     }
-    if (grapSeaLevel != null){
-        grapSeaLevel.updateGraphByType(parseInt(data))
+    if (graphSeaLevel != null){
+        graphSeaLevel.updateGraphByType(parseInt(data))
     }
 }
 function updateGraphByRange(data){
@@ -294,8 +299,8 @@ function updateGraphByRange(data){
     if (graphRain != null){
         graphRain.updateGraphByRange(parseFloat(data));
     }
-    if (grapSeaLevel != null){
-        grapSeaLevel.updateGraphByRange(parseFloat(data));
+    if (graphSeaLevel != null){
+        graphSeaLevel.updateGraphByRange(parseFloat(data));
     }
 }
 function resetGraphs(){
@@ -305,8 +310,8 @@ function resetGraphs(){
     if (graphRain != null){
         graphRain.resetGraph();
     }
-    if (grapSeaLevel != null){
-        grapSeaLevel.resetGraph();
+    if (graphSeaLevel != null){
+        graphSeaLevel.resetGraph();
     }
     document.getElementById("predictionTypeSlider").value = 2;
     document.getElementById("predictionRangeSlider").value = 0;
