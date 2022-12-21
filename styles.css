@@ -33,7 +33,7 @@ p.white, a.white {
 }
 
 #rise-container {
-    height: 150vh;
+    height: 165vh;
 }
 
 .graph-container {
@@ -99,4 +99,12 @@ strong {
 
 label {
     font-family: 'Montserrat', sans-serif;
+}
+
+.predictionslider {
+    display: flex;
+}
+
+.predictionslider input {
+    width: 59%;
 }

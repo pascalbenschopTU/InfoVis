@@ -18,6 +18,14 @@ const scenarioSelection = {
     4: "High"
 }
 
+const scenarioSelectionText = {
+    0: "Low",
+    1: "Intermediate Low",
+    2: "Normal",
+    3: "Intermediate High",
+    4: "High"
+}
+
 // Mode for showing which data is displayed
 var mode = dataSelection.difference;
 
@@ -206,6 +214,7 @@ function defineListeners(densityGeoJSON, waterlevels, scenarios) {
                 waterlevels[i][j] =  (parseFloat(avgWaterHeights[i]) + accumulated_value).toString()
             }
         }
+        document.getElementById('selectScenarionTypeLabel').innerHTML = scenarioSelectionText[event.target.value]
         changeDataPoints()
     })
 
