@@ -50,7 +50,9 @@ strong {
     padding: 20px;
 }
 
-
+.text-container {
+    padding: 20px;
+}
 
 .container-double {
     display: flex;
