@@ -33,12 +33,12 @@ p.white, a.white {
 }
 
 #rise-container {
-    height: 165vh;
+    height: 170vh;
 }
 
 .graph-container {
     width: 50%;
-    padding: 20px;
+    padding: 30px;
 }
 
 strong {
@@ -94,10 +94,10 @@ strong {
 
 #display {
     margin: 0;
-    margin-left: 50px;
+    margin-left: 15px;
 }
 
-label {
+label, text {
     font-family: 'Montserrat', sans-serif;
 }
 
@@ -107,4 +107,8 @@ label {
 
 .predictionslider input {
     width: 59%;
+}
+
+#pcp-plot text {
+    cursor: grab;
 }

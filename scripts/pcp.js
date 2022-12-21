@@ -6,9 +6,10 @@ const pcpMargin = { top: 30, right: 50, bottom: 10, left: 50 },
 // Parse the Data
 d3.csv("../data/pcpDataSet.csv").then(function (data) {
 
-  dimensions = ["AvgRain", "AvgTemp", "avgCO2World", "seaLevel"]
+  dimensions = ["Year", "AvgRain", "AvgTemp", "avgCO2World", "seaLevel"]
 
   var y = {}
+  y["Year"] = d3.scaleLinear().domain([1990, 2014]).range([pcpHeight, 0])
   y["AvgTemp"] = d3.scaleLinear().domain([0, 15]).range([pcpHeight, 0])
   y["AvgRain"] = d3.scaleLinear().domain([400, 1500]).range([pcpHeight, 0])
   y["avgCO2World"] = d3.scaleLinear().domain([-3, 50]).range([pcpHeight, 0])

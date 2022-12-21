@@ -335,8 +335,9 @@ function createLegend(text) {
     // create a list of keys
     var keys = dataColor.domain()
     svg.append("text")
-        .attr("x", 50)
-        .attr("y", 80)
+        .attr("x", 15)
+        .attr("y", 60)
+        .attr("width", "100px")
         .attr("class", "legend")
         .text(text)
 
@@ -347,8 +348,8 @@ function createLegend(text) {
         .enter()
         .append("rect")
         .attr("class", "legend")
-        .attr("x", 50)
-        .attr("y", function(d,i){ return 100 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
+        .attr("x", 15)
+        .attr("y", function(d,i){ return 80 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
         .attr("width", size)
         .attr("height", size)
         .style("fill", function(d){ return dataColor(d)})
@@ -359,8 +360,8 @@ function createLegend(text) {
         .enter()
         .append("text")
         .attr("class", "legend")
-        .attr("x", 50 + size*1.2)
-        .attr("y", function(d,i){ return 100 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
+        .attr("x", 15 + size*1.2)
+        .attr("y", function(d,i){ return 80 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
         .text(function(d){ return d + " cm"})
         .attr("text-anchor", "left")
         .style("alignment-baseline", "middle")
