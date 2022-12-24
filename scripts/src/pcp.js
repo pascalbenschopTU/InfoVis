@@ -4,7 +4,7 @@ const pcpMargin = { top: 30, right: 50, bottom: 10, left: 50 },
   pcpHeight = 900 - pcpMargin.top - pcpMargin.bottom;
 
 // Parse the Data
-d3.csv("../data/pcpDataSet.csv").then(function (data) {
+d3.csv("data/pcpDataSet.csv").then(function (data) {
 
   // set up the dimensions
   dimensions = ["Year", "AvgRain", "AvgTemp", "avgCO2World", "seaLevel"];
