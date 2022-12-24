@@ -31,7 +31,7 @@ d3.csv("data/pcpDataSet.csv").then(function (data) {
 
   // highlight
   var highlight = function (d) {
-    document.getElementById("#pcp-data-text").innerHTML = "In the <strong>" + d.Year + "</strong> on average <strong>" + d.AvgRain + "</strong> fell, the average temprature was <strong>" + d.AvgTemp + "</strong> the average co2 in the world was <strong>" + d.avgCO2World + "</strong> and the sealevel rose <strong>" + d.seaLevel + "</strong> compared to 1883";
+    document.getElementById("#pcp-data-text").innerHTML = "In the year <strong>" + d.Year + "</strong> on average <strong>" + d.AvgRain + " mm</strong> of rain fell, the average temprature was <strong>" + d.AvgTemp + " °C</strong> the average co2 in the world was <strong>" + Math.round(d.avgCO2World * 100) / 100 + "% increased from 1990</strong> and the sealevel rose <strong>" +  Math.round(d.seaLevel) + " mm</strong> compared to 1883";
 
     year = d.Year;
 

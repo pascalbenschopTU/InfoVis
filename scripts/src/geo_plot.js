@@ -138,7 +138,8 @@ function insertDataPoints(waterlevels) {
         .attr("r", "10px")
         .attr("class", "waterlevel")
         .style("stroke", "black")
-        .style("position", "absolute");
+        .style("position", "absolute")
+        .on("click", e => focusOnDataPoint(e, waterlevels));    
 }
 
 // Change the data points when data has changed
@@ -150,8 +151,8 @@ function changeDataPoints() {
         })
         // Show the water level when hovering over a point
         .on("mouseover", function(d) {
-            var xPosition = d.x - 300;
-            var yPosition = d.y > 250 ? d.y - 200 : d.y - 100;
+            var xPosition = d.x - 200;
+            var yPosition = d.y - 250;
             svg.append("text")
                 .attr("class", "info")
                 .attr("id", "tooltip")
@@ -240,9 +241,6 @@ function defineListeners(densityGeoJSON, waterlevels, scenarios) {
             changeDataPoints();
         }
     })
-
-    svg.selectAll(".waterlevel")
-        .on("click", e => focusOnDataPoint(e, waterlevels));
 }
 
 // When clicked on a data point highlight it and plot data over the years
