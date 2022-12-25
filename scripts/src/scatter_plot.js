@@ -197,7 +197,7 @@ class GraphWrapper{
         let minY;
 
         if (this.thresholdHeight){
-            maxY = Math.max(d3.max(data, (d) => parseFloat(d[1])), this.thresholdHeight);
+            maxY = Math.max(d3.max(data, (d) => parseFloat(d[1])), this.thresholdHeight) + 50; // Adjust height for legend
             minY = Math.min(d3.min(data, (d) => parseFloat(d[1])), this.thresholdHeight);
         } else {
             maxY = d3.max(data, (d) => parseFloat(d[1]));
@@ -311,6 +311,7 @@ class GraphWrapper{
         const max_y = Math.max(...data.map(d => d[1]));
         var xScale = this.xScale;
         var yScale = this.yScale;
+        var measurement = this.measurement;
 
         this.root_group.on("mousemove", function(mouse) {
             const [x_cord,y_cord] = d3.pointer(mouse);
@@ -319,7 +320,7 @@ class GraphWrapper{
             const current_y = min_y + Math.round(ratio * (max_y - min_y));
             mouse_g.attr('transform', `translate(${xScale(current_year)},${0})`);
             t1.text(`Year: ${current_year}`).attr('text-anchor', current_year < (min_year + max_year) / 2 ? "start" : "end");
-            t2.text(`Height: ${Math.round(current_y)} mm`).attr('text-anchor', current_year < (min_year + max_year) / 2 ? "start" : "end").attr("dy", 20);
+            t2.text(`Height: ${Math.round(current_y)} `+ measurement).attr('text-anchor', current_year < (min_year + max_year) / 2 ? "start" : "end").attr("dy", 20);
         });
 
         this.root_group.on("mouseout", function(mouse) {
