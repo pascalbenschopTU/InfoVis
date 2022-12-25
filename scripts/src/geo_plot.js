@@ -93,7 +93,7 @@ function initializePredictedYears(waterlevels, scenarios) {
     for (var i = 0; i < waterlevels.length; i++) {
         var accumulated_value = 0;
         for (var j = 2023; j <= 2119; j += 1) {
-            accumulated_value += parseFloat(scenarios[j-2023][scenario]);
+            accumulated_value += parseFloat(scenarios[j-2023][scenario]) / 10;
             waterlevels[i][j] =  (parseFloat(avgWaterHeights[i]) + accumulated_value).toString();
         }
     }
@@ -158,7 +158,7 @@ function changeDataPoints() {
                 .attr("id", "tooltip")
                 .attr("x", xPosition)
                 .attr("y", yPosition)
-                .text("Water level above NAP: " + Math.round(d.target.__data__[dataChronologicalSlider.value] * 100) / 10 + " mm")
+                .text("Water level above NAP: " + Math.round(d.target.__data__[dataChronologicalSlider.value] * 10) / 10 + " cm")
                 .style("fill", "white")
                 .style("text-shadow", "0.07em 0 black, 0 0.07em black, -0.07em 0 black, 0 -0.07em black")
             d3.select(this)
@@ -212,7 +212,7 @@ function defineListeners(densityGeoJSON, waterlevels, scenarios) {
         for (var i = 0; i < waterlevels.length; i++) {
             var accumulated_value = 0;
             for (var j = 2023; j <= 2119; j += 1) {
-                accumulated_value += parseFloat(scenarios[j-2023][scenario]);
+                accumulated_value += parseFloat(scenarios[j-2023][scenario]) / 10;
                 waterlevels[i][j] =  (parseFloat(avgWaterHeights[i]) + accumulated_value).toString();
             }
         }
@@ -276,13 +276,13 @@ function plotWaterLevelGraph(X, waterlevels) {
     var waterlevel_data = [];
     for (var i = 2010; i <= 2119; i++) {
         if (waterlevelsX[i] != "") {
-            waterlevel_data.push([i, parseFloat(waterlevelsX[i]) * 10]);
+            waterlevel_data.push([i, parseFloat(waterlevelsX[i])]);
         }
     }
 
-    height = parseFloat(waterlevelsX['land_height']) * 10;
+    height = parseFloat(waterlevelsX['land_height']);
     d3.select(".focusscatterplot>svg").remove();
-    focusScatterPlot = showSeaLevelData(waterlevel_data, height, svgName=".focusscatterplot", parse=false, keep_ref=false);
+    focusScatterPlot = showSeaLevelData(waterlevel_data, height, svgName=".focusscatterplot", parse=false, keep_ref=false, measurement="cm");
     focussedX = X;
 }
 

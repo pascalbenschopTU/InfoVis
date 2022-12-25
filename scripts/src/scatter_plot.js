@@ -7,11 +7,12 @@ let graphSeaLevel = null;
 let slopeValues = [-0.0075, -0.005, 0, 0.02, 0.05];
 
 class GraphWrapper{
-    constructor(data, color_points, color_trendline, thresholdHeight, svgName = ".scatterplot") {
+    constructor(data, color_points, color_trendline, thresholdHeight, svgName = ".scatterplot", measurement="mm") {
         this.data = data;
         this.color_points = color_points;
         this.color_trendline = color_trendline;
         this.svgName = svgName
+        this.measurement = measurement;
         this.graph_name = svgName + "_graph";
         this.graph_name_xAxis = this.graph_name + "_x";
         this.graph_name_yAxis = this.graph_name + "_y";
@@ -85,7 +86,7 @@ class GraphWrapper{
             .enter()
             .append("rect")
             .attr("class", "legend")
-            .attr("x", 100)
+            .attr("x", 150)
             .attr("y", function(d,i){ return 50 + i*(size+5)})
             .attr("width", size)
             .attr("height", size)
@@ -97,7 +98,7 @@ class GraphWrapper{
             .enter()
             .append("text")
             .attr("class", "legend")
-            .attr("x", 100 + size*1.2)
+            .attr("x", 150 + size*1.2)
             .attr("y", function(d,i){ return 50 + i*(size+5) + (size/2)})
             .text(function(d){ return d[0]})
             .attr("text-anchor", "left")
@@ -205,14 +206,14 @@ class GraphWrapper{
 
         this.yScale = d3.scaleLinear().domain([minY - maxY * 0.1, maxY + maxY * 0.1]).range([scatterHeight, 0]);
         this.xAxis = d3.axisBottom().scale(this.xScale).tickFormat(d3.format("d"));
-        this.yAxis = d3.axisLeft().scale(this.yScale);
+        this.yAxis = d3.axisLeft().scale(this.yScale).tickFormat(d3.format("d"));
     }
 
     // plot the data points
     plotDataPoints() {
         // add axis to svg group
-        this.root_group.append("g").classed("xaxis", true).attr("transform", `translate(0,${scatterHeight})`).attr("id", this.graph_name_xAxis).call(this.xAxis);
-        this.root_group.append("g").classed("yaxis", true).attr("id", this.graph_name_yAxis).call(this.yAxis);
+        this.makeXaxis()
+        this.makeYaxis()
         const group = this.root_group.append("g");
 
         const marks = group
@@ -223,6 +224,45 @@ class GraphWrapper{
             .attr("cx", d => this.xScale(d[0]))
             .attr("cy", d => this.yScale(d[1]))
             .style("fill", this.color_points);
+    }
+
+    // Make X axis and X label
+    makeXaxis() {
+        this.root_group.append("g")
+            .classed("xaxis", true)
+            .attr("transform", `translate(0,${scatterHeight - 10})`)
+            .attr("id", this.graph_name_xAxis)
+            .call(this.xAxis)
+            .selectAll("text")
+            .style("font-size", "15px")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-65)");
+
+        this.root_group.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("x", scatterWidth)
+            .attr("y", scatterHeight + 60)
+            .text("years");
+    }
+
+    // Make Y axis and Y label
+    makeYaxis() {
+        this.root_group.append("g")
+            .classed("yaxis", true)
+            .attr("transform", `translate(0, -10)`)
+            .attr("id", this.graph_name_yAxis)
+            .call(this.yAxis)
+            .style("font-size", "15px");
+
+        this.root_group.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("x", -50)
+            .attr("y", 0)
+            .text(this.measurement);
     }
 
     plotLine(data, color="green", thickness=6) {
@@ -310,17 +350,17 @@ function showWeatherData(data){
 }
 
 // load and show the sealevel dataset
-function showSeaLevelData(data, thresholdHeight=null, svgName=".scatterplot", parse=true, keep_ref=true) {
+function showSeaLevelData(data, thresholdHeight=null, svgName=".scatterplot", parse=true, keep_ref=true, measurement="mm") {
     let dataSealevel = data;
 
     if(parse) {
         dataSealevel = data.map(d => [parseFloat(d.Year), parseFloat(d.SeaLevel)]);
     }
    if (keep_ref) {
-       graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdHeight, svgName);
+       graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdHeight, svgName, measurement);
        graphSeaLevel.plotDataGraph();
    } else {
-       const graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdHeight, svgName);
+       const graphSeaLevel = new GraphWrapper(dataSealevel,"blue", "green", thresholdHeight, svgName, measurement);
        graphSeaLevel.plotDataGraph();
        return graphSeaLevel;
    }
